@@ -13,7 +13,6 @@ LEACH
 """
 
 
-
 def run():
     # basic communcation scenario
     pass

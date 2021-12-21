@@ -10,7 +10,7 @@ class Network(list):
     """
 
     def __init__(self, init_nodes=None):
-        logging.log('Instantiating nodes...')
+        logging.debug('Instantiating nodes...')
         super().__init__()
 
         nodes = [Node(i, self) for i in range(0, cfg.NODES_NUMBER)]
@@ -33,5 +33,5 @@ class Network(list):
         self.energy_spent = []
 
 
-def simulate(self):
-    pass
+    def simulate(self):
+        pass
