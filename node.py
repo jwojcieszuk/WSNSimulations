@@ -1,7 +1,7 @@
+
 import numpy as np
 
 class Node:
-
     def __init__(self, node_id, parent=0):
         self.pos_x = np.random.uniform(0, 250)
         self.pos_y = np.random.uniform(0, 250)
@@ -13,6 +13,8 @@ class Node:
 
         self.id = node_id
         self.network_handler = parent
+        self.next_hop = 0
+
 
     def transmit_data(self):
         pass
@@ -20,7 +22,8 @@ class Node:
     def sense_environment(self):
         pass
 
-
-class NodeTypes:
-    base_station = Node("base_station")
-    sensor_node = Node("sensor")
+    def __repr__(self):
+        return "X: " + str(self.pos_x)\
+               + " Y: " + str(self.pos_y)\
+               + " ID: " + str(self.id)\
+               + " Next hop: " + str(self.next_hop)

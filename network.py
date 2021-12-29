@@ -1,37 +1,34 @@
 import logging
-from node import Node, NodeTypes
+from node import Node
 import config as cfg
 
 
 class Network(list):
     """
         This class handles operations of the whole network.
-        
+        Instantiating nodes, base station.
     """
 
-    def __init__(self, init_nodes=None):
-        logging.debug('Instantiating nodes...')
+    def __init__(self, routing_protocol=None):
+        logging.info('Instantiating nodes...')
         super().__init__()
 
         nodes = [Node(i, self) for i in range(0, cfg.NODES_NUMBER)]
         self.extend(nodes)
 
-        base_station = NodeTypes.base_station
-        base_station.pos_x = cfg.BS_POS_X
-        base_station.pos_y = cfg.BS_POS_Y
+        base_station = Node(cfg.BS_ID)
+        base_station.pos_x = cfg.BS_X
+        base_station.pos_y = cfg.BS_Y
         self.append(base_station)
 
-        self._dict = {}
-        for node in self:
-            self._dict[node.id] = node
-
-        self.round = 0
-        self.routing_protocol = None
-
-        # self.initial_energy = self.get_remaining_energy()
-        # self.first_depletion = 0
-        self.energy_spent = []
-
+        self.routing_protocol = routing_protocol
 
     def simulate(self):
-        pass
+        self.routing_protocol.init_communication(self)
+
+    def broadcast_next_hop(self):
+
+
+    def print_nodes(self):
+        for node in self:
+            print(node)

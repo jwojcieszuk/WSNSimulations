@@ -1,5 +1,5 @@
-BS_POS_X = 125.0
-BS_POS_Y = 125.0
+BS_X = 125.0
+BS_Y = 125.0
 BS_ID = -1
 
 
