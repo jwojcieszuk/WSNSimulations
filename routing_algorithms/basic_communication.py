@@ -10,6 +10,7 @@ class BasicCommunication(RoutingAlgorithm):
     """
     @staticmethod
     def setup_initial_hops(network):
+        logging.info('Setting up inital hops for Basic Communication..')
         for node in network:
             node.next_hop = cfg.BS_ID
 

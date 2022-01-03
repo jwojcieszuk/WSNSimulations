@@ -18,8 +18,7 @@ class Battery(EnergySource):
         else:
             logging.info("node %d: battery is depleted." % self.node.node_id)
             self.energy = 0
-
-            self.node.battery_depletion()
+            self.node.battery_dead()
 
 
 class PluggedIn(EnergySource):
