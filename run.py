@@ -19,14 +19,16 @@ import sys
 from routing_algorithms.basic_communication import BasicCommunication
 from environment.environment import Environment
 
+
 def run():
     logging.basicConfig(stream=sys.stdout, level=logging.INFO)
     env = Environment()
     env.simulate_routing(BasicCommunication)
-    for node in env.network:
+    for node in env.network.nodes:
         print(node)
 
     # environment.print_nodes()
+
 
 if __name__ == "__main__":
     run()

@@ -17,22 +17,32 @@ class Environment:
 
     def simulate_routing(self, routing_protocol):
         setattr(self.network, 'routing_protocol', routing_protocol)
-        self.network.routing_protocol.setup_initial_hops(self.network)
-        self.plot_environment()
-
-        for round in range(cfg.ROUNDS):
-            self.simulate_events()
+        self.network.routing_protocol.setup_initial_hops(self.network.nodes)
+        # self.plot_environment()
+        round = 0
+        while(True):
+            self.simulate_event()
             self.network.transmit_data()
+            round += 1
+            if not self.check_network_life():
+                logging.info("Network is dead after %s rounds. Base Station received %s messages.", round, self.network.base_station.packets_received_count)
+                break
 
-    def simulate_events(self):
-        node = random.choice(self.network)
+    def simulate_event(self):
+        node = random.choice(self.network.nodes)
         node.sense_environment()
+
+    def check_network_life(self):
+        for node in self.network.nodes:
+            if node.alive:
+                return True
+        return False
 
     def plot_environment(self):
         logging.info("Plotting deployed environment...")
         x_coordinates = []
         y_coordinates = []
-        for node in self.network:
+        for node in self.network.nodes:
             x_coordinates.append(node.pos_x)
             y_coordinates.append(node.pos_y)
         bs_x = self.network.base_station.pos_x

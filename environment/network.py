@@ -3,33 +3,25 @@ import config as cfg
 from environment.node import Node, BaseStation
 
 
-class Network(list):
+class Network:
     """
         This class handles operations of the whole environment.
         Deploying nodes, base station.
     """
 
     def __init__(self):
-        super().__init__()
         logging.info('Deploying nodes...')
 
-        nodes = [Node(i, self) for i in range(0, cfg.NODES_NUMBER)]
-        self.extend(nodes)
+        self.nodes = [Node(i, self) for i in range(0, cfg.NODES_NUMBER)]
         self.base_station = BaseStation()
-        self.network_dict = {node.node_id: node for node in self}
+        self.network_dict = {node.node_id: node for node in self.nodes}
         self.routing_protocol = None
+        self.network_life = True
 
     def transmit_data(self):
-        for node in self:
-            if node.node_id == cfg.BS_ID:
-                continue
+        for node in self.nodes:
             destination_node = self.get_node_by_id(node.next_hop)
             node.transmit_data(destination_node)
-
-    # def broadcast_next_hop(self):
-    #     base_station = self.get_base_station()
-    #     if base_station:
-    #         base_station.transmit_data()
 
     def get_base_station(self):
         return self.get_node_by_id(cfg.BS_ID)
@@ -41,5 +33,5 @@ class Network(list):
         return self.network_dict[node_id]
 
     def print_nodes(self):
-        for node in self:
+        for node in self.nodes:
             print(node)
