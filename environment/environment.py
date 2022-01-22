@@ -1,6 +1,6 @@
 import random
 import matplotlib.pyplot as plt
-import config as cfg
+import configuration as cfg
 import logging
 
 from environment.network import Network
@@ -17,7 +17,7 @@ class Environment:
 
     def simulate_routing(self, routing_protocol):
         setattr(self.network, 'routing_protocol', routing_protocol)
-        self.network.routing_protocol.setup_initial_hops(self.network.nodes)
+        self.network.routing_protocol.setup_phase(self.network.nodes)
         # self.plot_environment()
         round = 0
         while(True):
@@ -27,6 +27,20 @@ class Environment:
             if not self.check_network_life():
                 logging.info("Network is dead after %s rounds. Base Station received %s messages.", round, self.network.base_station.packets_received_count)
                 break
+
+    def simulate_leach(self, routing_protocol):
+        setattr(self.network, 'routing_protocol', routing_protocol)
+        counter = 0
+        heads = list()
+        heads = self.network.routing_protocol.advertisement_phase(self.network, counter)
+
+        while counter < cfg.ROUNDS:
+            heads = self.network.routing_protocol.advertisement_phase(self.network, counter, heads)
+            counter += 1
+            print(heads)
+
+            #cluster_heads brodcasts an advertisement message to the rest of the nodes
+
 
     def simulate_event(self):
         node = random.choice(self.network.nodes)

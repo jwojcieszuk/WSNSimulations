@@ -1,4 +1,4 @@
-import config as cfg
+import configuration as cfg
 import logging
 
 

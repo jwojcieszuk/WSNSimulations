@@ -1,5 +1,5 @@
 import logging
-import config as cfg
+import configuration as cfg
 from environment.node import Node, BaseStation
 
 
@@ -31,6 +31,14 @@ class Network:
             return self.base_station
 
         return self.network_dict[node_id]
+
+    def get_alive_nodes(self):
+        alive_nodes = list()
+        for node in self.nodes:
+            if node.alive:
+                alive_nodes.append(node)
+
+        return alive_nodes
 
     def print_nodes(self):
         for node in self.nodes:

@@ -1,12 +1,12 @@
 import logging
-import config as cfg
+import configuration as cfg
 import numpy as np
 
 from decorators import alive_node
 from environment.energy_source import Battery
 
 
-class Node(object):
+class Node:
     def __init__(self, node_id, parent=0):
         self.node_id = node_id
         self.network_handler = parent

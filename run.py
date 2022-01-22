@@ -8,22 +8,19 @@ Base communication (Direct communication)
 
 """
 
-# TODO: figure out data transmission for basic communication
-# base station takes data from the nodes or other way arround?
-# add a decorator that divides nodes by alive and not alive
-
 
 import logging
 import sys
 
 from routing_algorithms.basic_communication import BasicCommunication
 from environment.environment import Environment
+from routing_algorithms.leach import Leach
 
 
 def run():
     logging.basicConfig(stream=sys.stdout, level=logging.INFO)
     env = Environment()
-    env.simulate_routing(BasicCommunication)
+    env.simulate_leach(Leach)
     for node in env.network.nodes:
         print(node)
 
