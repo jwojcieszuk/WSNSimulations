@@ -4,6 +4,7 @@ import math
 import numpy as np
 
 import configuration as cfg
+from utils import euclidean_distance, Colors
 
 
 class Leach:
@@ -32,6 +33,9 @@ class Leach:
 
     @staticmethod
     def advertisement_phase(network, round_num, prev_heads=None):
+        """
+            During advertisement phase cluster heads are elected and clusters are formed.
+        """
         logging.info('LEACH: Advertisement Phase...')
 
         alive_nodes = network.get_alive_nodes()
@@ -40,14 +44,30 @@ class Leach:
 
         cluster_heads = list()
         i = 0
+        j = 0
+        # cluster head election
         while len(cluster_heads) != cfg.CLUSTERS_NUM:
             node = alive_nodes[i]
             random_num = np.random.uniform(0, 1)
             if random_num < threshold:
                 node.next_hop = cfg.BS_ID
+                node.color = Colors.colors_list[j]
+                node.is_head = True
+                j += 1
                 cluster_heads.append(node)
-
             i = i + 1 if i < len(alive_nodes) - 1 else 0
 
+        # forming clusters
+        for node in alive_nodes:
+            if node in cluster_heads:
+                continue
+            nearest_head = cluster_heads[0]
+            for cluster_head in cluster_heads[1:]:
+                if euclidean_distance(node, nearest_head) > euclidean_distance(node, cluster_head):
+                    nearest_head = cluster_head
+            node.next_hop = nearest_head.node_id
+            node.color = nearest_head.color
+
+        return cluster_heads
 
 

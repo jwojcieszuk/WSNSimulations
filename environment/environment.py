@@ -31,16 +31,15 @@ class Environment:
     def simulate_leach(self, routing_protocol):
         setattr(self.network, 'routing_protocol', routing_protocol)
         counter = 0
-        heads = list()
         heads = self.network.routing_protocol.advertisement_phase(self.network, counter)
+        self.plot_environment()
 
-        while counter < cfg.ROUNDS:
-            heads = self.network.routing_protocol.advertisement_phase(self.network, counter, heads)
-            counter += 1
-            print(heads)
-
-            #cluster_heads brodcasts an advertisement message to the rest of the nodes
-
+        # while counter < cfg.ROUNDS:
+        #     heads = self.network.routing_protocol.advertisement_phase(self.network, counter, heads)
+        #     counter += 1
+        #     # cluster_heads broadcasts an advertisement message to the rest of the nodes
+        #
+        #     self.plot_environment()
 
     def simulate_event(self):
         node = random.choice(self.network.nodes)
@@ -54,14 +53,17 @@ class Environment:
 
     def plot_environment(self):
         logging.info("Plotting deployed environment...")
-        x_coordinates = []
-        y_coordinates = []
         for node in self.network.nodes:
-            x_coordinates.append(node.pos_x)
-            y_coordinates.append(node.pos_y)
+            x_coordinates = node.pos_x
+            y_coordinates = node.pos_y
+            if node.is_head:
+                plt.scatter(x_coordinates, y_coordinates, c=node.color, s=500)
+            else:
+                plt.scatter(x_coordinates, y_coordinates, c=node.color, s=50)
+
         bs_x = self.network.base_station.pos_x
         bs_y = self.network.base_station.pos_y
-        plt.scatter(bs_x, bs_y, c="red")
-        plt.scatter(x_coordinates, y_coordinates, 250)
+        plt.scatter(bs_x, bs_y, c="blue", s=100)
+        # plt.scatter(x_coordinates, y_coordinates, 250)
         plt.show()
 

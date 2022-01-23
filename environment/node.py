@@ -16,6 +16,8 @@ class Node:
         self.next_hop = 0
         self.contains_data = False
         self.alive = True
+        self.color = None
+        self.is_head = False
 
     def transmit_data(self, destination_node):
         if self.contains_data:
@@ -37,7 +39,9 @@ class Node:
                + " ID: " + str(self.node_id)\
                + " Next hop: " + str(self.next_hop)\
                + " contains data: " + str(self.contains_data)\
-               + " energy: " + str(self.energy_source.energy)
+               + " energy: " + str(self.energy_source.energy)\
+               + " is head: " + str(self.is_head)\
+
 
 
 class BaseStation:
@@ -56,3 +60,4 @@ class BaseStation:
 
     def receive_data(self):
         self.packets_received_count += 1
+
