@@ -57,6 +57,7 @@ class Leach:
                 cluster_heads.append(node)
             i = i + 1 if i < len(alive_nodes) - 1 else 0
 
+        cluster_nodes = list()
         # forming clusters
         for node in alive_nodes:
             if node in cluster_heads:
@@ -67,7 +68,17 @@ class Leach:
                     nearest_head = cluster_head
             node.next_hop = nearest_head.node_id
             node.color = nearest_head.color
+            nearest_head.cluster_nodes.append(node)
 
         return cluster_heads
+
+    @staticmethod
+    def transmission_phase(network, heads):
+        # gather information from nodes in the cluster and transmit it to head
+        # transmit from head to BS
+        for head in heads:
+            head.aggregate_data()
+            head.transmit_data(network.get_node_by_id(head.next_hop))
+
 
 

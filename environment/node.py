@@ -18,6 +18,8 @@ class Node:
         self.alive = True
         self.color = None
         self.is_head = False
+        self.packets_received_count = 0
+        self.cluster_nodes = list()
 
     def transmit_data(self, destination_node):
         if self.contains_data:
@@ -41,7 +43,15 @@ class Node:
                + " contains data: " + str(self.contains_data)\
                + " energy: " + str(self.energy_source.energy)\
                + " is head: " + str(self.is_head)\
+               + " packets counts: " + str(self.packets_received_count)\
 
+
+    def aggregate_data(self):
+        for node in self.cluster_nodes:
+            node.transmit_data(self)
+
+    def receive_data(self):
+        self.packets_received_count += 1
 
 
 class BaseStation:

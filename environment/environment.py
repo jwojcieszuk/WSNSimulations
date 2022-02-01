@@ -15,16 +15,16 @@ class Environment:
     def __init__(self):
         self.network = Network()
 
-    def simulate_routing(self, routing_protocol):
+    def simulate_direct_communication(self, routing_protocol):
         setattr(self.network, 'routing_protocol', routing_protocol)
         self.network.routing_protocol.setup_phase(self.network.nodes)
         # self.plot_environment()
         round = 0
-        while(True):
+        while True:
             self.simulate_event()
             self.network.transmit_data()
             round += 1
-            if not self.check_network_life():
+            if self.check_network_life() is False:
                 logging.info("Network is dead after %s rounds. Base Station received %s messages.", round, self.network.base_station.packets_received_count)
                 break
 
@@ -33,7 +33,9 @@ class Environment:
         counter = 0
         heads = self.network.routing_protocol.advertisement_phase(self.network, counter)
         self.plot_environment()
-
+        self.simulate_event()
+        self.network.routing_protocol.transmission_phase(self.network, heads)
+        logging.info("Base station received %s messages", self.network.base_station.packets_received_count)
         # while counter < cfg.ROUNDS:
         #     heads = self.network.routing_protocol.advertisement_phase(self.network, counter, heads)
         #     counter += 1
@@ -57,7 +59,7 @@ class Environment:
             x_coordinates = node.pos_x
             y_coordinates = node.pos_y
             if node.is_head:
-                plt.scatter(x_coordinates, y_coordinates, c=node.color, s=500)
+                plt.scatter(x_coordinates, y_coordinates, c=node.color, s=500, label=str(node.node_id))
             else:
                 plt.scatter(x_coordinates, y_coordinates, c=node.color, s=50)
 
@@ -65,5 +67,6 @@ class Environment:
         bs_y = self.network.base_station.pos_y
         plt.scatter(bs_x, bs_y, c="blue", s=100)
         # plt.scatter(x_coordinates, y_coordinates, 250)
+        plt.legend(loc="upper left")
         plt.show()
 
