@@ -1,9 +1,10 @@
+import functools
 import logging
 import configuration as cfg
 import numpy as np
 
-from decorators import alive_node
 from environment.energy_source import Battery
+from utils import Colors, euclidean_distance
 
 
 class Node:
@@ -21,18 +22,39 @@ class Node:
         self.packets_received_count = 0
         self.cluster_nodes = list()
 
+    def _alive_node_only(func):
+        @functools.wraps(func)
+        def wrapper(node, *args, **kwargs):
+            if node.alive:
+                func(node, *args, **kwargs)
+            elif node.energy_source.energy == 0:
+                # logging.info("Node %s is not alive! Cannot sense data.", node.node_id)
+                pass
+        return wrapper
+
+    @_alive_node_only
     def transmit_data(self, destination_node):
         if self.contains_data:
-            self.energy_source.consume(1)
-            destination_node.receive_data()
+            energy_cost = self._calculate_energy_cost(destination_node)
+            if not self.energy_source.consume(energy_cost):
+                return
+            if self.is_head:
+                destination_node.receive_data(self.packets_received_count)
+            else:
+                destination_node.receive_data(1)
+            self.packets_received_count = 0
             self.contains_data = False
+
+    def _calculate_energy_cost(self, destination_node):
+        return euclidean_distance(self, destination_node)
 
     def battery_dead(self):
         self.alive = False
+        self.color = Colors.BLACK
 
-    @alive_node
+    @_alive_node_only
     def sense_environment(self):
-        logging.info("Node %s sensing data. Energy level: %s", self.node_id, self.energy_source.energy)
+        # logging.info("Node %s sensing data. Energy level: %s", self.node_id, self.energy_source.energy)
         self.contains_data = True
 
     def __repr__(self):
@@ -43,15 +65,30 @@ class Node:
                + " contains data: " + str(self.contains_data)\
                + " energy: " + str(self.energy_source.energy)\
                + " is head: " + str(self.is_head)\
-               + " packets counts: " + str(self.packets_received_count)\
-
+               + " packets counts: " + str(self.packets_received_count)
 
     def aggregate_data(self):
         for node in self.cluster_nodes:
             node.transmit_data(self)
 
-    def receive_data(self):
-        self.packets_received_count += 1
+    def receive_data(self, packets_num):
+        self.contains_data = True
+        self.packets_received_count += packets_num
+
+    def pre_round_initialization(self):
+        self.next_hop = 0
+        self.contains_data = False
+        self.color = None
+        self.is_head = False
+
+    def restore_initial_state(self):
+        self.energy_source = Battery(self)
+        self.next_hop = 0
+        self.contains_data = False
+        self.alive = True
+        self.color = None
+        self.is_head = False
+        self.packets_received_count = 0
 
 
 class BaseStation:
@@ -68,6 +105,5 @@ class BaseStation:
                " Y:" + str(self.pos_y) +\
                 " packets_received_count: " + str(self.packets_received_count)
 
-    def receive_data(self):
-        self.packets_received_count += 1
-
+    def receive_data(self, packets_num):
+        self.packets_received_count += packets_num

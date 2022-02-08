@@ -20,9 +20,10 @@ from routing_algorithms.leach import Leach
 def run():
     logging.basicConfig(stream=sys.stdout, level=logging.INFO)
     env = Environment()
+    env.simulate_direct_communication(BasicCommunication)
     env.simulate_leach(Leach)
-    for node in env.network.nodes:
-        print(node)
+    # for node in env.network.nodes:
+    #     print(node)
 
     # environment.print_nodes()
 

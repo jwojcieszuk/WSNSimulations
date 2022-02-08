@@ -1,6 +1,4 @@
-import random
 import matplotlib.pyplot as plt
-import configuration as cfg
 import logging
 
 from environment.network import Network
@@ -12,6 +10,7 @@ class Environment:
         Basically, it sends some impulse on a 2D plane and sensors deployed in certain area
         receives packets with data.
     """
+
     def __init__(self):
         self.network = Network()
 
@@ -21,31 +20,40 @@ class Environment:
         # self.plot_environment()
         round = 0
         while True:
-            self.simulate_event()
-            self.network.transmit_data()
+            logging.info("Current round: %s", round)
+            self.network.routing_protocol.sensing_phase(self.network)
+            self.network.routing_protocol.transmission_phase(self.network)
             round += 1
             if self.check_network_life() is False:
-                logging.info("Network is dead after %s rounds. Base Station received %s messages.", round, self.network.base_station.packets_received_count)
+                logging.info("Basic Communication: Network is dead after %s rounds. Base Station received %s messages.", round,
+                             self.network.base_station.packets_received_count)
                 break
+        self.network.restore_initial_state()
 
     def simulate_leach(self, routing_protocol):
         setattr(self.network, 'routing_protocol', routing_protocol)
         counter = 0
-        heads = self.network.routing_protocol.advertisement_phase(self.network, counter)
+        # self.plot_environment()
+        heads = self.network.routing_protocol.setup_phase(self.network, counter)
         self.plot_environment()
-        self.simulate_event()
+        self.network.routing_protocol.sensing_phase(self.network)
         self.network.routing_protocol.transmission_phase(self.network, heads)
-        logging.info("Base station received %s messages", self.network.base_station.packets_received_count)
-        # while counter < cfg.ROUNDS:
-        #     heads = self.network.routing_protocol.advertisement_phase(self.network, counter, heads)
-        #     counter += 1
-        #     # cluster_heads broadcasts an advertisement message to the rest of the nodes
-        #
-        #     self.plot_environment()
+        self.network.pre_round_initialization()
+        # logging.info("Base station received %s messages", self.network.base_station.packets_received_count)
+        round = 0
+        while True:
+            heads = self.network.routing_protocol.setup_phase(self.network, counter)
+            # self.plot_environment()
+            self.network.routing_protocol.sensing_phase(self.network)
+            self.network.routing_protocol.transmission_phase(self.network, heads)
+            logging.info("Base station received %s messages", self.network.base_station.packets_received_count)
+            self.network.pre_round_initialization()
 
-    def simulate_event(self):
-        node = random.choice(self.network.nodes)
-        node.sense_environment()
+            if self.check_network_life() is False:
+                logging.info("LEACH: Network is dead after %s rounds. Base Station received %s messages.", round,
+                             self.network.base_station.packets_received_count)
+                break
+            round += 1
 
     def check_network_life(self):
         for node in self.network.nodes:
@@ -69,4 +77,3 @@ class Environment:
         # plt.scatter(x_coordinates, y_coordinates, 250)
         plt.legend(loc="upper left")
         plt.show()
-

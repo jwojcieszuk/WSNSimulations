@@ -12,7 +12,7 @@ class Network:
     def __init__(self):
         logging.info('Deploying nodes...')
 
-        self.nodes = [Node(i, self) for i in range(0, cfg.NODES_NUMBER)]
+        self.nodes = [Node(i, self) for i in range(0, cfg.NODES_NUM)]
         self.base_station = BaseStation()
         self.network_dict = {node.node_id: node for node in self.nodes}
         self.routing_protocol = None
@@ -43,3 +43,12 @@ class Network:
     def print_nodes(self):
         for node in self.nodes:
             print(node)
+
+    def pre_round_initialization(self):
+        for node in self.nodes:
+            node.pre_round_initialization()
+
+    def restore_initial_state(self):
+        for node in self.nodes:
+            node.restore_initial_state()
+        self.base_station = BaseStation()

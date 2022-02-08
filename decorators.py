@@ -2,6 +2,7 @@ import functools
 import time
 import logging
 
+
 def timer(func):
     """Print the runtime of the decorated function"""
     @functools.wraps(func)
@@ -16,10 +17,4 @@ def timer(func):
     return wrapper_timer
 
 
-def alive_node(func):
-    def wrapper(self):
-        if self.alive:
-            func(self)
-        elif self.energy_source.energy == 0:
-            logging.info("Node %s is not alive! Cannot sense data.", self.node_id)
-    return wrapper
+

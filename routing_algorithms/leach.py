@@ -4,10 +4,11 @@ import math
 import numpy as np
 
 import configuration as cfg
+from routing_algorithms.routing_algorithm import RoutingAlgorithm
 from utils import euclidean_distance, Colors
 
 
-class Leach:
+class Leach(RoutingAlgorithm):
     """
         LEACH is a self-organizing, adaptive clustering protocol
         that uses randomization to distribute the energy load evenly
@@ -32,11 +33,11 @@ class Leach:
     """
 
     @staticmethod
-    def advertisement_phase(network, round_num, prev_heads=None):
+    def setup_phase(network, round_num=None, prev_heads=None):
         """
             During advertisement phase cluster heads are elected and clusters are formed.
         """
-        logging.info('LEACH: Advertisement Phase...')
+        # logging.info('LEACH: Advertisement Phase...')
 
         alive_nodes = network.get_alive_nodes()
 
@@ -74,11 +75,16 @@ class Leach:
 
     @staticmethod
     def transmission_phase(network, heads):
-        # gather information from nodes in the cluster and transmit it to head
-        # transmit from head to BS
-        for head in heads:
-            head.aggregate_data()
-            head.transmit_data(network.get_node_by_id(head.next_hop))
+        # logging.info('Transmission phase for LEACH..')
+        # send data to cluster_heads
+        alive_nodes = network.get_alive_nodes()
+        for node in alive_nodes:
+            if node.is_head:
+                continue
+            node.transmit_data(network.network_dict[node.next_hop])
 
+        # send data from cluster_heads to the BS
+        for head in heads:
+            head.transmit_data(network.get_node_by_id(head.next_hop))
 
 
