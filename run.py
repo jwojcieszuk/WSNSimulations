@@ -12,20 +12,20 @@ Base communication (Direct communication)
 import logging
 import sys
 
+import matplotlib.pyplot as plt
+
 from routing_algorithms.basic_communication import BasicCommunication
-from environment.environment import Environment
+from environment.environment import Environment, Plotter
 from routing_algorithms.leach import Leach
 
 
 def run():
     logging.basicConfig(stream=sys.stdout, level=logging.INFO)
     env = Environment()
-    env.simulate_direct_communication(BasicCommunication)
-    env.simulate_leach(Leach)
-    # for node in env.network.nodes:
-    #     print(node)
-
-    # environment.print_nodes()
+    x1, y1 = env.simulate(BasicCommunication)
+    x2, y2 = env.simulate_leach(Leach)
+    plt.plot(x1, y1, 'r', x2, y2, '--b')
+    plt.show()
 
 
 if __name__ == "__main__":

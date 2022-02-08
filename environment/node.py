@@ -36,8 +36,13 @@ class Node:
     def transmit_data(self, destination_node):
         if self.contains_data:
             energy_cost = self._calculate_energy_cost(destination_node)
+            if energy_cost < 100:
+                energy_cost += 100
             if not self.energy_source.consume(energy_cost):
                 return
+
+            # if transmitting node is cluster head, transmit aggregated packet count
+            # if ordinary node, transmit 1 packet
             if self.is_head:
                 destination_node.receive_data(self.packets_received_count)
             else:

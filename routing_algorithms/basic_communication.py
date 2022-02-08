@@ -9,12 +9,14 @@ class BasicCommunication(RoutingAlgorithm):
         In basic communication each node next hop is base station ID
     """
     @staticmethod
-    def setup_phase(network):
+    def setup_phase(nodes):
         # logging.info('Setting up inital hops for Basic Communication..')
-        for node in network:
+        for node in nodes:
             node.next_hop = cfg.BS_ID
 
     @staticmethod
-    def transmission_phase(network):
+    def transmission_phase(network, heads=None):
         # logging.info('Transmission phase for Basic Communication..')
-        network.transmit_data()
+        alive_nodes = network.get_alive_nodes()
+        for node in alive_nodes:
+            node.transmit_data(network.get_node_by_id(node.next_hop))

@@ -23,7 +23,7 @@ center of the field. Next operation of simulation is divided into rounds, each r
     - Here each node that consists some data transmit it further based on `next_hop`. Energy consumed is calculated
       based on euclidean distance between node that consists data and destination node.
 
-Once all three phases are completed, network is refreshed to initial state.
+Once all three phases are completed, network is restored to initial state.
 
 Network continue to operate until all nodes in the network are dead and counts how many rounds were performed.
 
@@ -33,6 +33,8 @@ Network continue to operate until all nodes in the network are dead and counts h
 - energy consumption based on euclidean distance
 - sleep scheduling(?)
 
+**Issues**
+- Too many rounds until network is dead for Direct Communication
 
 References:
 
