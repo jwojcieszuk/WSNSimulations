@@ -5,7 +5,7 @@ import numpy as np
 
 import configuration as cfg
 from routing_algorithms.routing_algorithm import RoutingAlgorithm
-from utils import euclidean_distance, Colors
+from utils import euclidean_distance
 
 
 class Leach(RoutingAlgorithm):
@@ -52,7 +52,7 @@ class Leach(RoutingAlgorithm):
             random_num = np.random.uniform(0, 1)
             if random_num < threshold:
                 node.next_hop = cfg.BS_ID
-                node.color = Colors.colors_list[j]
+                # node.color = Colors.colors_list[j]
                 node.is_head = True
                 j += 1
                 cluster_heads.append(node)
@@ -68,7 +68,7 @@ class Leach(RoutingAlgorithm):
                 if euclidean_distance(node, nearest_head) > euclidean_distance(node, cluster_head):
                     nearest_head = cluster_head
             node.next_hop = nearest_head.node_id
-            node.color = nearest_head.color
+            # node.color = nearest_head.color
             nearest_head.cluster_nodes.append(node)
 
         return cluster_heads

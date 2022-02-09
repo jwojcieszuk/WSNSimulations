@@ -22,6 +22,10 @@ class Node:
         self.packets_received_count = 0
         self.cluster_nodes = list()
 
+    def __call__(self, obj, o, o1):
+        if obj is None:
+            return obj
+
     def _alive_node_only(func):
         @functools.wraps(func)
         def wrapper(node, *args, **kwargs):

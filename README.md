@@ -34,9 +34,11 @@ Network continue to operate until all nodes in the network are dead and counts h
 - sleep scheduling(?)
 
 **Issues**
-- Too many rounds until network is dead for Direct Communication
+- 
+- Too many rounds until network is dead for Direct Communication(?)
+- LEACH: add condition to not re-elect cluster-heads chosen in previous round, to increase network lifetime
+
 
 References:
-
 1. Energy-Efficient Communication Protocol for Wireless Microsensor Networks Wendi Rabiner Heinzelman, Anantha
    Chandrakasan, and Hari Balakrishnan

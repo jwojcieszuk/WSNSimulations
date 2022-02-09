@@ -7,12 +7,12 @@ class RoutingAlgorithm:
         This is an interface for all implementations of routing algorithms
     """
     @staticmethod
-    def setup_phase(network):
+    def setup_phase(*args, **kwargs):
         pass
 
     @staticmethod
-    def broadcast(network):
-        network.broadcast_next_hop()
+    def transmission_phase(*args, **kwargs):
+        pass
 
     @staticmethod
     def sensing_phase(network):

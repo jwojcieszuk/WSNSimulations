@@ -5,7 +5,7 @@ BS_Y = 125.0
 BS_ID = -1
 
 INITIAL_ENERGY = 10000
-NODES_NUM = 100
+NODES_NUM = 500
 ROUNDS = 1
 
 # number of nodes for sensing phase

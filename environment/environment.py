@@ -2,62 +2,51 @@ import matplotlib.pyplot as plt
 import logging
 
 from environment.network import Network
+from routing_algorithms.direct_communication import DirectCommunication
+from routing_algorithms.leach import Leach
 
 
 class Environment:
     """
-        This class simulates behaviour of an environment that is deployed in some area.
+        This class simulates behaviour of an environment that is deployed in some field.
         Basically, it sends some impulse on a 2D plane and sensors deployed in certain area
         receives packets with data.
     """
 
     def __init__(self):
         self.network = Network()
+        self.routing_algorithm = None
 
-    def simulate(self, routing_protocol):
-        setattr(self.network, 'routing_protocol', routing_protocol)
+    def simulate(self, routing_algorithm):
+        setattr(self, 'routing_algorithm', routing_algorithm)
         x_coordinates, y_coordinates = list(), list()
         round = 0
 
         while True:
-            self.network.routing_protocol.setup_phase(self.network.nodes)
-            # logging.info("Current round: %s", round)
-            self.network.routing_protocol.sensing_phase(self.network)
-            self.network.routing_protocol.transmission_phase(self.network)
-            self.network.pre_round_initialization()
-            x_coordinates.append(round)
-            y_coordinates.append(len(self.network.get_alive_nodes()))
+            self._run_round(round)
             if self.check_network_life() is False:
                 logging.info("Basic Communication: Network is dead after %s rounds. Base Station received %s messages.", round,
                              self.network.base_station.packets_received_count)
                 break
+            x_coordinates.append(round)
+            y_coordinates.append(len(self.network.get_alive_nodes()))
             round += 1
 
         self.network.restore_initial_state()
         return x_coordinates, y_coordinates
 
-    def simulate_leach(self, routing_protocol):
-        setattr(self.network, 'routing_protocol', routing_protocol)
-        x_coordinates = list()
-        y_coordinates = list()
-        round = 0
-        while True:
-            heads = self.network.routing_protocol.setup_phase(self.network, round)
-            # self.plot_environment()
-            self.network.routing_protocol.sensing_phase(self.network)
-            self.network.routing_protocol.transmission_phase(self.network, heads)
-            # logging.info("Base station received %s messages", self.network.base_station.packets_received_count)
-            self.network.pre_round_initialization()
+    def _run_round(self, round):
+        if isinstance(self.routing_algorithm, DirectCommunication):
+            self.routing_algorithm.setup_phase(self.network.nodes)
+            self.routing_algorithm.sensing_phase(self.network)
+            self.routing_algorithm.transmission_phase(self.network)
+            self.network.reset_nodes()
 
-            if self.check_network_life() is False:
-                logging.info("LEACH: Network is dead after %s rounds. Base Station received %s messages.", round,
-                             self.network.base_station.packets_received_count)
-                break
-            x_coordinates.append(round)
-            y_coordinates.append(len(self.network.get_alive_nodes()))
-            round += 1
-
-        return x_coordinates, y_coordinates
+        elif isinstance(self.routing_algorithm, Leach):
+            heads = self.routing_algorithm.setup_phase(self.network, round)
+            self.routing_algorithm.sensing_phase(self.network)
+            self.routing_algorithm.transmission_phase(self.network, heads)
+            self.network.reset_nodes()
 
     def check_network_life(self):
         for node in self.network.nodes:
@@ -80,17 +69,4 @@ class Environment:
         plt.scatter(bs_x, bs_y, c="blue", s=100)
         # plt.scatter(x_coordinates, y_coordinates, 250)
         plt.legend(loc="upper left")
-        plt.show()
-
-
-class Plotter:
-    def __init__(self):
-        self.x_coordinates = list()
-        self.y_coordinates = list()
-
-    def plot_nodes_alive_vs_network_lifetime(self):
-        plt.plot(self.x_coordinates, self.y_coordinates)
-
-    @staticmethod
-    def show_plot():
         plt.show()

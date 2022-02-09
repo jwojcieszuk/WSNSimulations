@@ -21,7 +21,7 @@ class Battery(EnergySource):
         else:
             self.energy = 0
             self.node.battery_dead()
-            logging.info("node %d: battery is depleted. Cannot transmit data." % self.node.node_id)
+            # logging.info("node %d: battery is depleted. Cannot transmit data." % self.node.node_id)
             return False
 
 

@@ -18,11 +18,6 @@ class Network:
         self.routing_protocol = None
         self.network_life = True
 
-    def transmit_data(self):
-        for node in self.nodes:
-            destination_node = self.get_node_by_id(node.next_hop)
-            node.transmit_data(destination_node)
-
     def get_base_station(self):
         return self.get_node_by_id(cfg.BS_ID)
 
@@ -44,7 +39,7 @@ class Network:
         for node in self.nodes:
             print(node)
 
-    def pre_round_initialization(self):
+    def reset_nodes(self):
         for node in self.nodes:
             node.pre_round_initialization()
 
@@ -52,3 +47,4 @@ class Network:
         for node in self.nodes:
             node.restore_initial_state()
         self.base_station = BaseStation()
+

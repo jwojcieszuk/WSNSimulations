@@ -4,7 +4,7 @@ import logging
 from routing_algorithms.routing_algorithm import RoutingAlgorithm
 
 
-class BasicCommunication(RoutingAlgorithm):
+class DirectCommunication(RoutingAlgorithm):
     """
         In basic communication each node next hop is base station ID
     """
@@ -15,7 +15,7 @@ class BasicCommunication(RoutingAlgorithm):
             node.next_hop = cfg.BS_ID
 
     @staticmethod
-    def transmission_phase(network, heads=None):
+    def transmission_phase(network):
         # logging.info('Transmission phase for Basic Communication..')
         alive_nodes = network.get_alive_nodes()
         for node in alive_nodes:
