@@ -32,50 +32,58 @@ class Leach(RoutingAlgorithm):
         paper by Wendi Rabiner Heinzelman, Anantha Chandrakasan, and Hari Balakrishnan
     """
 
-    @staticmethod
-    def setup_phase(network, round_num=None, prev_heads=None):
+    def setup_phase(self, network, round_num=None, prev_heads=None):
         """
-            During advertisement phase cluster heads are elected and clusters are formed.
+            During setup phase cluster heads are elected and clusters are formed.
         """
         # logging.info('LEACH: Advertisement Phase...')
 
         alive_nodes = network.get_alive_nodes()
-
         threshold = cfg.P / (1 - cfg.P * (math.fmod(round_num, 1 / cfg.P)))
 
+        cluster_heads = self._elect_cluster_heads(alive_nodes, threshold)
+        self._form_clusters(cluster_heads, alive_nodes)
+
+        return cluster_heads
+
+    @staticmethod
+    def _elect_cluster_heads(alive_nodes, threshold):
         cluster_heads = list()
-        i = 0
-        j = 0
-        # cluster head election
+        i, j = 0, 0
+
         while len(cluster_heads) != cfg.CLUSTERS_NUM:
             node = alive_nodes[i]
             random_num = np.random.uniform(0, 1)
+
             if random_num < threshold:
                 node.next_hop = cfg.BS_ID
                 # node.color = Colors.colors_list[j]
                 node.is_head = True
                 j += 1
                 cluster_heads.append(node)
-            i = i + 1 if i < len(alive_nodes) - 1 else 0
 
-        cluster_nodes = list()
-        # forming clusters
-        for node in alive_nodes:
-            if node in cluster_heads:
-                continue
-            nearest_head = cluster_heads[0]
-            for cluster_head in cluster_heads[1:]:
-                if euclidean_distance(node, nearest_head) > euclidean_distance(node, cluster_head):
-                    nearest_head = cluster_head
-            node.next_hop = nearest_head.node_id
-            # node.color = nearest_head.color
-            nearest_head.cluster_nodes.append(node)
+            i = i + 1 if i < len(alive_nodes) - 1 else 0
 
         return cluster_heads
 
     @staticmethod
+    def _form_clusters(cluster_heads, alive_nodes):
+        for node in alive_nodes:
+            if node in cluster_heads:
+                continue
+            nearest_head = cluster_heads[0]
+
+            for cluster_head in cluster_heads[1:]:
+                if euclidean_distance(node, nearest_head) > euclidean_distance(node, cluster_head):
+                    nearest_head = cluster_head
+
+            node.next_hop = nearest_head.node_id
+            # node.color = nearest_head.color
+            nearest_head.cluster_nodes.append(node)
+
+    @staticmethod
     def transmission_phase(network, heads):
-        # logging.info('Transmission phase for LEACH..')
+        # logging.info('Transmission phase for LEACH')
         # send data to cluster_heads
         alive_nodes = network.get_alive_nodes()
         for node in alive_nodes:
@@ -86,5 +94,3 @@ class Leach(RoutingAlgorithm):
         # send data from cluster_heads to the BS
         for head in heads:
             head.transmit_data(network.get_node_by_id(head.next_hop))
-
-
