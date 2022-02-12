@@ -4,6 +4,7 @@ import logging
 from environment.network import Network
 from routing_algorithms.direct_communication import DirectCommunication
 from routing_algorithms.leach import Leach
+from routing_algorithms.leach_c import LeachC
 
 
 class Environment:
@@ -15,35 +16,44 @@ class Environment:
 
     def __init__(self):
         self.network = Network()
+        # each node informs base station about its location
+        self.network.notify_position()
         self.routing_algorithm = None
 
     def simulate(self, routing_algorithm):
         setattr(self, 'routing_algorithm', routing_algorithm)
         x_coordinates, y_coordinates = list(), list()
-        round = 0
-
+        round_counter = 0
         while True:
-            self._run_round(round)
+            self._run_round(round_counter)
+            x_coordinates.append(round_counter)
+            y_coordinates.append(len(self.network.get_alive_nodes()))
             if self.check_network_life() is False:
-                logging.info("Basic Communication: Network is dead after %s rounds. Base Station received %s messages.", round,
+                logging.info("%s: Network is dead after %s rounds. Base Station received %s messages.",
+                             type(self.routing_algorithm), round_counter,
                              self.network.base_station.packets_received_count)
                 break
-            x_coordinates.append(round)
-            y_coordinates.append(len(self.network.get_alive_nodes()))
-            round += 1
+            round_counter += 1
 
         self.network.restore_initial_state()
         return x_coordinates, y_coordinates
 
-    def _run_round(self, round):
+    def _run_round(self, round_counter):
         if isinstance(self.routing_algorithm, DirectCommunication):
             self.routing_algorithm.setup_phase(self.network.nodes)
             self.routing_algorithm.sensing_phase(self.network)
             self.routing_algorithm.transmission_phase(self.network)
             self.network.reset_nodes()
 
+        elif isinstance(self.routing_algorithm, LeachC):
+            avg_energy = self.network.base_station.calculate_avg_energy(self.network.nodes)
+            heads = self.routing_algorithm.setup_phase(self.network, round_counter, avg_energy)
+            self.routing_algorithm.sensing_phase(self.network)
+            self.routing_algorithm.transmission_phase(self.network, heads)
+            self.network.reset_nodes()
+
         elif isinstance(self.routing_algorithm, Leach):
-            heads = self.routing_algorithm.setup_phase(self.network, round)
+            heads = self.routing_algorithm.setup_phase(self.network, round_counter)
             self.routing_algorithm.sensing_phase(self.network)
             self.routing_algorithm.transmission_phase(self.network, heads)
             self.network.reset_nodes()
@@ -68,5 +78,5 @@ class Environment:
         bs_y = self.network.base_station.pos_y
         plt.scatter(bs_x, bs_y, c="blue", s=100)
         # plt.scatter(x_coordinates, y_coordinates, 250)
-        plt.legend(loc="upper left")
+        plt.legend(loc="upper right")
         plt.show()

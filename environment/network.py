@@ -48,3 +48,7 @@ class Network:
             node.restore_initial_state()
         self.base_station = BaseStation()
 
+    def notify_position(self):
+        """Every node transmit its position directly to the base station."""
+        for node in self.get_alive_nodes():
+            node.transmit_data(self.base_station)

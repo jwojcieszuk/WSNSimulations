@@ -5,7 +5,7 @@ import numpy as np
 
 import configuration as cfg
 from routing_algorithms.routing_algorithm import RoutingAlgorithm
-from utils import euclidean_distance
+from utils import euclidean_distance, Colors
 
 
 class Leach(RoutingAlgorithm):
@@ -32,36 +32,34 @@ class Leach(RoutingAlgorithm):
         paper by Wendi Rabiner Heinzelman, Anantha Chandrakasan, and Hari Balakrishnan
     """
 
-    def setup_phase(self, network, round_num=None, prev_heads=None):
+    def setup_phase(self, network, round_num=None):
         """
             During setup phase cluster heads are elected and clusters are formed.
         """
         # logging.info('LEACH: Advertisement Phase...')
 
         alive_nodes = network.get_alive_nodes()
-        threshold = cfg.P / (1 - cfg.P * (math.fmod(round_num, 1 / cfg.P)))
 
-        cluster_heads = self._elect_cluster_heads(alive_nodes, threshold)
+        cluster_heads = self._elect_cluster_heads(alive_nodes, round_num)
         self._form_clusters(cluster_heads, alive_nodes)
 
         return cluster_heads
 
-    @staticmethod
-    def _elect_cluster_heads(alive_nodes, threshold):
+    def _elect_cluster_heads(self, alive_nodes, round_num):
         cluster_heads = list()
         i, j = 0, 0
 
         while len(cluster_heads) != cfg.CLUSTERS_NUM:
+            threshold = cfg.P / (1 - cfg.P * (math.fmod(round_num, 1 / cfg.P)))
             node = alive_nodes[i]
             random_num = np.random.uniform(0, 1)
 
             if random_num < threshold:
                 node.next_hop = cfg.BS_ID
-                # node.color = Colors.colors_list[j]
+                node.color = Colors.colors_list[j]
                 node.is_head = True
                 j += 1
                 cluster_heads.append(node)
-
             i = i + 1 if i < len(alive_nodes) - 1 else 0
 
         return cluster_heads
@@ -78,13 +76,12 @@ class Leach(RoutingAlgorithm):
                     nearest_head = cluster_head
 
             node.next_hop = nearest_head.node_id
-            # node.color = nearest_head.color
+            node.color = nearest_head.color
             nearest_head.cluster_nodes.append(node)
 
     @staticmethod
     def transmission_phase(network, heads):
-        # logging.info('Transmission phase for LEACH')
-        # send data to cluster_heads
+        # logging.info('Transmission phase for Basic Communication..')
         alive_nodes = network.get_alive_nodes()
         for node in alive_nodes:
             if node.is_head:

@@ -11,8 +11,8 @@ class Node:
     def __init__(self, node_id, parent=0):
         self.node_id = node_id
         self.network_handler = parent
-        self.pos_x = np.random.uniform(0, 250)
-        self.pos_y = np.random.uniform(0, 250)
+        self.pos_x = np.random.uniform(10, 210)
+        self.pos_y = np.random.uniform(10, 210)
         self.energy_source = Battery(self)
         self.next_hop = 0
         self.contains_data = False
@@ -38,33 +38,40 @@ class Node:
 
     @_alive_node_only
     def transmit_data(self, destination_node):
-        if self.contains_data:
-            energy_cost = self._calculate_energy_cost(destination_node)
-            if energy_cost < 100:
-                energy_cost += 100
-            if not self.energy_source.consume(energy_cost):
-                return
+        energy_cost = self._calculate_energy_cost(destination_node)
+        self.energy_source.consume(energy_cost)
 
-            # if transmitting node is cluster head, transmit aggregated packet count
-            # if ordinary node, transmit 1 packet
-            if self.is_head:
-                destination_node.receive_data(self.packets_received_count)
-            else:
-                destination_node.receive_data(1)
-            self.packets_received_count = 0
-            self.contains_data = False
+        # if transmitting node is cluster head, transmit aggregated packet count
+        # if ordinary node, transmit 1 packet
+        if self.is_head:
+            destination_node.receive_data(self.packets_received_count)
+        else:
+            destination_node.receive_data(1)
+        self.packets_received_count = 0
+        self.contains_data = False
 
     def _calculate_energy_cost(self, destination_node):
-        return euclidean_distance(self, destination_node)
+        distance = euclidean_distance(self, destination_node)
+        energy = cfg.E_ELEC * cfg.k + cfg.Eamp * cfg.k * distance ** 2
+        if self.energy_source.energy < energy:
+            self.energy = 0
+            self.battery_dead()
+
+        return energy
 
     def battery_dead(self):
         self.alive = False
+        self.energy_source.energy = 0
         self.color = Colors.BLACK
 
     @_alive_node_only
     def sense_environment(self):
         # logging.info("Node %s sensing data. Energy level: %s", self.node_id, self.energy_source.energy)
+        # self.energy_source.consume(cfg.RECEIVER_ENERGY_COST)
         self.contains_data = True
+        # energy dissipated by a node for the reception ERx(k) of a message of k bits
+        energy_cost = cfg.E_ELEC * cfg.k
+        self.energy_source.consume(energy_cost)
 
     def __repr__(self):
         return "X: " + str(self.pos_x)\
@@ -81,6 +88,9 @@ class Node:
             node.transmit_data(self)
 
     def receive_data(self, packets_num):
+        # energy dissipated by a node for the reception ERx(k) of a message of k bits
+        energy_cost = cfg.E_ELEC * cfg.k
+        self.energy_source.consume(energy_cost)
         self.contains_data = True
         self.packets_received_count += packets_num
 
@@ -116,3 +126,7 @@ class BaseStation:
 
     def receive_data(self, packets_num):
         self.packets_received_count += packets_num
+
+    @staticmethod
+    def calculate_avg_energy(nodes):
+        return sum([node.energy_source.energy for node in nodes])/cfg.NODES_NUM

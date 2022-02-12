@@ -17,6 +17,5 @@ class DirectCommunication(RoutingAlgorithm):
     @staticmethod
     def transmission_phase(network):
         # logging.info('Transmission phase for Basic Communication..')
-        alive_nodes = network.get_alive_nodes()
-        for node in alive_nodes:
+        for node in network.nodes:
             node.transmit_data(network.get_node_by_id(node.next_hop))

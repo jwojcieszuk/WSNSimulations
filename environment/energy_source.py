@@ -15,14 +15,8 @@ class Battery(EnergySource):
     def consume(self, energy):
         if self.energy >= energy:
             self.energy -= energy
-            if self.energy == 0:
-                self.node.battery_dead()
-            return True
-        else:
-            self.energy = 0
+        if self.energy == 0:
             self.node.battery_dead()
-            # logging.info("node %d: battery is depleted. Cannot transmit data." % self.node.node_id)
-            return False
 
 
 class PluggedIn(EnergySource):

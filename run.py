@@ -13,6 +13,7 @@ import logging
 import sys
 
 import matplotlib.pyplot as plt
+from routing_algorithms.leach_c import LeachC
 
 from routing_algorithms.direct_communication import DirectCommunication
 from environment.environment import Environment
@@ -23,9 +24,13 @@ def run():
     logging.basicConfig(stream=sys.stdout, level=logging.INFO)
     env = Environment()
     x1, y1 = env.simulate(DirectCommunication())
-    x2, y2 = env.simulate(Leach())
+    # x2, y2 = env.simulate(LeachC())
+    x3, y3 = env.simulate(Leach())
     plt.plot(x1, y1, 'r', label="Direct Communication")
-    plt.plot(x2, y2, '--b', label="LEACH")
+    # plt.plot(x2, y2, '--b', label="LEACH-C")
+    plt.plot(x3, y3, 'g', label="LEACH")
+    plt.ylabel("Number of nodes alive")
+    plt.xlabel("Rounds")
     plt.legend(loc="lower left")
 
     plt.show()
