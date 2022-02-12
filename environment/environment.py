@@ -29,9 +29,8 @@ class Environment:
             x_coordinates.append(round_counter)
             y_coordinates.append(len(self.network.get_alive_nodes()))
             if self.check_network_life() is False:
-                logging.info("%s: Network is dead after %s rounds. Base Station received %s messages.",
-                             type(self.routing_algorithm), round_counter,
-                             self.network.base_station.packets_received_count)
+                logging.info("%s: Network is dead after %s rounds",
+                             type(self.routing_algorithm), round_counter)
                 break
             round_counter += 1
 

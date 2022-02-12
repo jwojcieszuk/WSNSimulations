@@ -1,7 +1,7 @@
 # Wireless Sensor Networks Simulator
 
-This is a simulator for WSN written in Python3. It supports communication from nodes to the Base Station(BS) with the
-use of routing algorithms. Currently, there are two algorithms implemented.
+This is a simulator for WSN written in Python. It supports communication from nodes to the Base Station(BS) with the use
+of routing algorithms. Currently, there are two algorithms implemented.
 
 1. Direct Communication(DC), in which nodes transmit data directly to Base Station(BS).
 2. LEACH, which is cluster based algorithm in which cluster-heads are elected by the BS. Implementation is based on [1]
@@ -16,25 +16,12 @@ center of the field. Next operation of simulation is divided into **rounds**, ea
       and then each node finds the nearest cluster_head (distance is calculated based on euclidean distance between
       nodes). Each node has its `next_hop` assigned as their cluster_head, and each cluster_head has its `next_hop`
       assigned as BS.
-    - For LEACH-C,
 - **Sensing phase**
-    - During sensing phase, events in the environment are simulated in a very simple way - random nodes are chosen (5%
-      of the number of all nodes), and they sense data, which means that their `contains_data` attribute is set to True.
+    - During sensing phase I assume that each node has data to send. So each alive node has its `contains_data`
+      attribute send to True
 - **Data transmission phase**
-    - Here each node that consists some data transmit it further based on `next_hop`. Energy consumed is calculated
-      based on euclidean distance between node that consists data and destination node.
-
-Once all three phases are completed, network is restored to initial state.
-
-How simulation for Direct Communication is performed:
-
-- Network is deployed randomly
-- Base Station informs each node that its next hop is the base station itself, since this is direct communication
-- Next step is sensing phase, in which all nodes that are alive sense some information
-- Final step of the round is transmission phase, in which every node that is alive, sends data to Base Station, and
-  energy cost of such transmission is calculated
-
-Network continue to operate until all nodes in the network are dead and counts how many rounds were performed.
+    - Here each node that consists data transmit it further based on `next_hop` attribute. Energy consumed is calculated
+      based on energy consumption model described below.
 
 **Energy consumption model**
 Based on [2] paper. Energy model adopted in this work is as follows:the radio dissipates 50 nJ/bit (Eelec) to run the
@@ -46,6 +33,8 @@ receiver circuitry dissipation per bit—and Eamp is the transmit amplifier diss
 Similarly, the energy dissipated by a node for the reception ERx(k) of a message of k bits is due to running the
 receiver circuitry ERx-elec(k) and is expressed by the following equation:
 Erx(k) = Eelec * k
+
+Once all three phases are completed, network is restored to initial state.
 
 References:
 

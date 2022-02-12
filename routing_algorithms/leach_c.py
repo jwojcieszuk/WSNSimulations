@@ -47,7 +47,7 @@ class LeachC(RoutingAlgorithm):
 
             node.next_hop = nearest_head.node_id
             # node.color = nearest_head.color
-            nearest_head.cluster_nodes.append(node)
+            # nearest_head.cluster_nodes.append(node)
 
     @staticmethod
     def transmission_phase(network, heads):

@@ -45,7 +45,8 @@ class Leach(RoutingAlgorithm):
 
         return cluster_heads
 
-    def _elect_cluster_heads(self, alive_nodes, round_num):
+    @staticmethod
+    def _elect_cluster_heads(alive_nodes, round_num):
         cluster_heads = list()
         i, j = 0, 0
 
@@ -77,7 +78,7 @@ class Leach(RoutingAlgorithm):
 
             node.next_hop = nearest_head.node_id
             node.color = nearest_head.color
-            nearest_head.cluster_nodes.append(node)
+            # nearest_head.cluster_nodes.append(node)
 
     @staticmethod
     def transmission_phase(network, heads):
