@@ -18,10 +18,12 @@ class Node:
         self.alive = True
         self.color = None
         self.is_head = False
+        self.dissipated_energy = 0
 
     @_alive_node_only
     def transmit_data(self, destination_node):
         energy_cost = self._calculate_energy_cost(destination_node)
+        self.dissipated_energy += energy_cost
         self.energy_source.consume(energy_cost)
 
         destination_node.receive_data()
@@ -33,6 +35,7 @@ class Node:
         else:
             energy_cost = cfg.E_ELEC * cfg.k
         # energy dissipated by a node for the reception ERx(k) of a message of k bits
+        self.dissipated_energy += energy_cost
         self.energy_source.consume(energy_cost)
         self.contains_data = True
 
@@ -59,6 +62,7 @@ class Node:
         self.contains_data = True
         # energy dissipated by a node for the reception ERx(k) of a message of k bits
         energy_cost = cfg.E_ELEC * cfg.k
+        self.dissipated_energy += energy_cost
         self.energy_source.consume(energy_cost)
 
     def __repr__(self):
@@ -75,6 +79,7 @@ class Node:
         self.contains_data = False
         self.color = None
         self.is_head = False
+        # self.dissipated_energy = 0
 
     def restore_initial_state(self):
         self.energy_source = Battery(self)
@@ -83,6 +88,7 @@ class Node:
         self.alive = True
         self.color = None
         self.is_head = False
+        self.dissipated_energy = 0
 
 
 class BaseStation:

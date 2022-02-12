@@ -23,11 +23,13 @@ class Environment:
     def simulate(self, routing_algorithm):
         setattr(self, 'routing_algorithm', routing_algorithm)
         x_coordinates, y_coordinates = list(), list()
+        # energy_dissipation_y = list()
         round_counter = 0
         while True:
             self._run_round(round_counter)
             x_coordinates.append(round_counter)
-            y_coordinates.append(len(self.network.get_alive_nodes()))
+            y_coordinates.append(self.network.avg_energy_dissipation())
+            # y_coordinates.append(len(self.network.get_alive_nodes()))
             if self.check_network_life() is False:
                 logging.info("%s: Network is dead after %s rounds",
                              type(self.routing_algorithm), round_counter)

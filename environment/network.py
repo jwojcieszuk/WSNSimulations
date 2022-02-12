@@ -52,3 +52,6 @@ class Network:
         """Every node transmit its position directly to the base station."""
         for node in self.get_alive_nodes():
             node.transmit_data(self.base_station)
+
+    def avg_energy_dissipation(self):
+        return sum([node.dissipated_energy for node in self.nodes])/len(self.nodes)
