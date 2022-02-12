@@ -28,14 +28,20 @@ class Node:
         self.contains_data = False
 
     def receive_data(self):
+        if self.is_head:
+            energy_cost = (cfg.E_ELEC+cfg.EDA) * cfg.k
+        else:
+            energy_cost = cfg.E_ELEC * cfg.k
         # energy dissipated by a node for the reception ERx(k) of a message of k bits
-        energy_cost = cfg.E_ELEC * cfg.k
         self.energy_source.consume(energy_cost)
         self.contains_data = True
 
     def _calculate_energy_cost(self, destination_node):
         distance = euclidean_distance(self, destination_node)
-        energy = cfg.E_ELEC * cfg.k + cfg.Eamp * cfg.k * distance ** 2
+        if self.is_head:
+            energy = (cfg.E_ELEC+cfg.EDA) * cfg.k + cfg.Eamp * cfg.k * distance ** 2
+        else:
+            energy = cfg.E_ELEC * cfg.k + cfg.Eamp * cfg.k * distance ** 2
         if self.energy_source.energy < energy:
             self.energy = 0
             self.battery_dead()

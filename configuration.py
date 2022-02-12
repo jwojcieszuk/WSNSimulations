@@ -23,7 +23,7 @@ ERx = 50 * 10 ** (-9)  # units in Joules/bit
 # Transmit Amplifier Types %
 Eamp = 100e-12  # units in Joules/bit/m^2 (amount of energy spent by the amplifier to transmit the bits)
 # Data Aggregation Energy
-EDA = 5 * 10 ^ (-9)  # units in Joules/bit
+EDA = 5 * 10 ** (-9)  # units in Joules/bit
 
 k = 4000  # units in bits
 
