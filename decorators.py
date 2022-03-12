@@ -12,3 +12,12 @@ def _alive_node_only(func):
             pass
 
     return wrapper
+
+
+def run_once(func):
+    def wrapper(*args, **kwargs):
+        if not wrapper.has_run:
+            wrapper.has_run = True
+            return func(*args, **kwargs)
+    wrapper.has_run = False
+    return wrapper

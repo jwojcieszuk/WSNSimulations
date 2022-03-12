@@ -1,6 +1,6 @@
 from routing_algorithms.routing_algorithm import RoutingAlgorithm
 import configuration as cfg
-from utils import euclidean_distance
+from utils import euclidean_distance, Colors
 
 
 class LeachC(RoutingAlgorithm):
@@ -20,12 +20,11 @@ class LeachC(RoutingAlgorithm):
     def _elect_cluster_heads(self, alive_nodes, round_num, avg_energy):
         cluster_heads = list()
         i, j = 0, 0
-
         while len(cluster_heads) != cfg.CLUSTERS_NUM:
             node = alive_nodes[i]
             if node.energy_source.energy >= avg_energy:
                 node.next_hop = cfg.BS_ID
-                # node.color = Colors.colors_list[j]
+                node.color = Colors.colors_list[j]
                 node.is_head = True
                 j += 1
                 cluster_heads.append(node)
@@ -46,7 +45,7 @@ class LeachC(RoutingAlgorithm):
                     nearest_head = cluster_head
 
             node.next_hop = nearest_head.node_id
-            # node.color = nearest_head.color
+            node.color = nearest_head.color
             # nearest_head.cluster_nodes.append(node)
 
     @staticmethod

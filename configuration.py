@@ -8,7 +8,6 @@ BS_ID = -1
 INITIAL_ENERGY = 0.5  # Jules
 NODES_NUM = 100
 
-# RECEIVER_ENERGY_COST = 70
 # LEACH CONFIGURATION
 # desired number of cluster heads is 5% of nodes in the network
 P = float(0.05)

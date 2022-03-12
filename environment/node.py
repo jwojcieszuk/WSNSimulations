@@ -18,6 +18,7 @@ class Node:
         self.alive = True
         self.color = None
         self.is_head = False
+        self.re_elect = 0
         self.dissipated_energy = 0
 
     @_alive_node_only

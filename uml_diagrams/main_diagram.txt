@@ -1,0 +1,79 @@
+@startuml
+class RoutingSimulator
+RoutingSimulator : network Network
+
+RoutingSimulator : simulate(routing_algorithm)
+RoutingSimulator : run_round(round_num)
+
+class Network
+Network : nodes Node[]
+Network : base_station BaseStation
+Network : routing_algorithm RoutingAlgorithm
+Network : is_alive Boolean
+
+Network : get_base_station()
+Network : get_node_by_id()
+Network : restore_initial_state()
+
+class Node
+Node : id Integer
+Node : position_x Float
+Node : position_y Float
+Node : energy_source Battery
+Node : next_hop_node_id Integer
+Node : contains_data Boolean
+Node : is_alive Boolean
+Node : is_head Boolean
+Node : dissipated_energy Float
+
+Node : transmit_data()
+Node : receive_data()
+Node : calculate_energy_cost()
+Node : battery_dead()
+Node : sense_environment()
+Node : restore_initial_state()
+
+class BaseStation
+BaseStation : id Integer
+BaseStation : position_x Float
+BaseStation : position_y Float
+
+BaseStation : receive_data()
+BaseStation : calculate_avg_node_energy()
+
+class Battery
+Battery : energy Float
+Battery : consume(energy_cost)
+
+interface RoutingAlgorithm
+RoutingAlgorithm : setup_phase()
+RoutingAlgorithm : sensing_phase()
+RoutingAlgorithm : data_transmission_phase()
+
+class DirectCommunication
+DirectCommunication : setup_phase()
+DirectCommunication : sensing_phase()
+DirectCommunication : data_transmission_phase()
+
+class Leach
+Leach : setup_phase()
+Leach : sensing_phase()
+Leach : data_transmission_phase()
+
+
+class LeachC
+LeachC : setup_phase()
+LeachC : sensing_phase()
+LeachC : data_transmission_phase()
+
+RoutingSimulator <-- Network
+Node --* Network
+BaseStation -- Network
+Node -- Battery
+
+RoutingAlgorithm <|.. DirectCommunication
+RoutingAlgorithm <|.. Leach
+RoutingAlgorithm <|.. LeachC
+
+Network <-- RoutingAlgorithm
+@enduml

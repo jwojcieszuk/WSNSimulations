@@ -61,6 +61,7 @@ class Leach(RoutingAlgorithm):
                 node.is_head = True
                 j += 1
                 cluster_heads.append(node)
+
             i = i + 1 if i < len(alive_nodes) - 1 else 0
 
         return cluster_heads
@@ -87,7 +88,7 @@ class Leach(RoutingAlgorithm):
         for node in alive_nodes:
             if node.is_head:
                 continue
-            node.transmit_data(network.network_dict[node.next_hop])
+            node.transmit_data(network.get_node_by_id(node.next_hop))
 
         # send data from cluster_heads to the BS
         for head in heads:

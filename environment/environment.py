@@ -1,6 +1,7 @@
 import matplotlib.pyplot as plt
 import logging
 
+from decorators import run_once
 from environment.network import Network
 from routing_algorithms.direct_communication import DirectCommunication
 from routing_algorithms.leach import Leach
@@ -16,20 +17,23 @@ class Environment:
 
     def __init__(self):
         self.network = Network()
+        self.plot_environment("Deployed network")
         # each node informs base station about its location
         self.network.notify_position()
         self.routing_algorithm = None
 
     def simulate(self, routing_algorithm):
         setattr(self, 'routing_algorithm', routing_algorithm)
-        x_coordinates, y_coordinates = list(), list()
+        x_coordinates, alive_nodes, avg_energy_dissipation = list(), list(), list()
         # energy_dissipation_y = list()
         round_counter = 0
+        plot_environment_once = run_once(self.plot_environment)
+
         while True:
-            self._run_round(round_counter)
+            self._run_round(round_counter, plot_environment_once)
             x_coordinates.append(round_counter)
-            y_coordinates.append(self.network.avg_energy_dissipation())
-            # y_coordinates.append(len(self.network.get_alive_nodes()))
+            avg_energy_dissipation.append(self.network.avg_energy_dissipation())
+            alive_nodes.append(len(self.network.get_alive_nodes()))
             if self.check_network_life() is False:
                 logging.info("%s: Network is dead after %s rounds",
                              type(self.routing_algorithm), round_counter)
@@ -37,9 +41,9 @@ class Environment:
             round_counter += 1
 
         self.network.restore_initial_state()
-        return x_coordinates, y_coordinates
+        return x_coordinates, alive_nodes, avg_energy_dissipation
 
-    def _run_round(self, round_counter):
+    def _run_round(self, round_counter, plot_enviornment_once):
         if isinstance(self.routing_algorithm, DirectCommunication):
             self.routing_algorithm.setup_phase(self.network.nodes)
             self.routing_algorithm.sensing_phase(self.network)
@@ -49,12 +53,16 @@ class Environment:
         elif isinstance(self.routing_algorithm, LeachC):
             avg_energy = self.network.base_station.calculate_avg_energy(self.network.nodes)
             heads = self.routing_algorithm.setup_phase(self.network, round_counter, avg_energy)
+            if plot_enviornment_once.has_run is False:
+                plot_enviornment_once("LeachC")
             self.routing_algorithm.sensing_phase(self.network)
             self.routing_algorithm.transmission_phase(self.network, heads)
             self.network.reset_nodes()
 
         elif isinstance(self.routing_algorithm, Leach):
             heads = self.routing_algorithm.setup_phase(self.network, round_counter)
+            if plot_enviornment_once.has_run is False:
+                plot_enviornment_once("Leach")
             self.routing_algorithm.sensing_phase(self.network)
             self.routing_algorithm.transmission_phase(self.network, heads)
             self.network.reset_nodes()
@@ -65,7 +73,7 @@ class Environment:
                 return True
         return False
 
-    def plot_environment(self):
+    def plot_environment(self, title):
         logging.info("Plotting deployed environment...")
         for node in self.network.nodes:
             x_coordinates = node.pos_x
@@ -80,4 +88,5 @@ class Environment:
         plt.scatter(bs_x, bs_y, c="blue", s=100)
         # plt.scatter(x_coordinates, y_coordinates, 250)
         plt.legend(loc="upper right")
+        plt.title(title)
         plt.show()
