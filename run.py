@@ -1,47 +1,52 @@
-"""
-Base communication (Direct communication)
-    1. create environment
-    2. deploy nodes(sensors, base station) in a 2D plane - each node XY coordinates, ID
-
-    3. communicate with nodes - send some random packets periodically from each node
-    4. perform data aggregation and processing in base station
-
-"""
-
-
+import json
 import logging
-import sys
 
 import matplotlib.pyplot as plt
-from routing_algorithms.leach_c import LeachC
+from matplotlib.pyplot import cm
+import numpy as np
 
-from routing_algorithms.direct_communication import DirectCommunication
+import configuration as cfg
 from environment.environment import Environment
-from routing_algorithms.leach import Leach
+from metrics import RoutingAlgorithmMetrics
 
 
 def run():
-    logging.basicConfig(stream=sys.stdout, level=logging.INFO)
-    env = Environment()
-    rounds1, alive_nodes1, avg_energy_dissipation1 = env.simulate(DirectCommunication())
-    rounds2, alive_nodes2, avg_energy_dissipation2 = env.simulate(LeachC())
-    rounds3, alive_nodes3, avg_energy_dissipation3 = env.simulate(Leach())
-    plt.plot(rounds1, alive_nodes1, 'r', label="Direct Communication")
-    plt.plot(rounds2, alive_nodes2, '--b', label="LEACH-C")
-    plt.plot(rounds3, alive_nodes3, 'g', label="LEACH")
-    plt.ylabel("Number of nodes alive")
-    plt.xlabel("Rounds")
-    plt.legend(loc="lower left")
-    plt.show()
+    logging.basicConfig(filename='simulator.log', filemode='w', encoding='utf-8', level=logging.INFO)
+    simulation_metrics = list()
 
-    plt.plot(rounds1, avg_energy_dissipation1, 'r', label="Direct Communication")
-    plt.plot(rounds2, avg_energy_dissipation2, '--b', label="LEACH-C")
-    plt.plot(rounds3, avg_energy_dissipation3, 'g', label="LEACH")
-    plt.ylabel("Average energy dissipation")
-    plt.xlabel("Rounds")
-    plt.legend(loc="lower left")
+    with open('scenario.json', 'r') as scenario_file:
+        data = json.load(scenario_file)
+        env = Environment(num_of_nodes=data['num_of_nodes'])
 
-    plt.show()
+        # gathering simulation results
+        for algorithm in data['algorithms']:
+            if algorithm in cfg.supported_algorithms:
+                logging.info(f'Starting simulation for {algorithm}')
+                metric: RoutingAlgorithmMetrics = env.simulate(cfg.supported_algorithms[algorithm])
+                simulation_metrics.append(metric)
+
+        if not simulation_metrics:
+            logging.info("Couldn't find any supported routing algorithms defined in scenario")
+            return
+
+        # plotting metrics
+        for scenario_metric in data['metrics']:
+            if scenario_metric in cfg.supported_metrics:
+                color = iter(cm.rainbow(np.linspace(0, 1, len(simulation_metrics))))
+
+                for simulation_metric in simulation_metrics:
+                    metric = simulation_metric.__getattribute__(scenario_metric)
+                    plt.plot(
+                        simulation_metric.rounds_num,
+                        metric,
+                        c=next(color),
+                        label=simulation_metric.algorithm_name
+                    )
+
+                plt.ylabel(scenario_metric)
+                plt.xlabel('Rounds')
+                plt.legend(loc="lower left")
+                plt.show()
 
 
 if __name__ == "__main__":

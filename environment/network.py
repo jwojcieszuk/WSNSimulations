@@ -4,15 +4,10 @@ from environment.node import Node, BaseStation
 
 
 class Network:
-    """
-        This class handles operations of the whole environment.
-        Deploying nodes, base station.
-    """
-
-    def __init__(self):
+    def __init__(self, num_of_nodes):
         logging.info('Deploying nodes...')
 
-        self.nodes = [Node(i, self) for i in range(0, cfg.NODES_NUM)]
+        self.nodes = [Node(i, self) for i in range(1, num_of_nodes)]
         self.base_station = BaseStation()
         self.network_dict = {node.node_id: node for node in self.nodes}
         self.routing_protocol = None

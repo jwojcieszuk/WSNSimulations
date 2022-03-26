@@ -1,3 +1,8 @@
+import logging
+
+import numpy as np
+from matplotlib import cm
+
 from routing_algorithms.routing_algorithm import RoutingAlgorithm
 import configuration as cfg
 from utils import euclidean_distance, Colors
@@ -11,20 +16,27 @@ class LeachC(RoutingAlgorithm):
         # logging.info('LEACH: Advertisement Phase...')
 
         alive_nodes = network.get_alive_nodes()
+        clusters_num = round(len(alive_nodes) * cfg.P)
+        if clusters_num == 0:
+            self._set_next_hop_as_bs(alive_nodes)
+            return
 
-        cluster_heads = self._elect_cluster_heads(alive_nodes, round_num, avg_energy)
+        cluster_heads = self._elect_cluster_heads(alive_nodes, avg_energy, clusters_num)
         self._form_clusters(cluster_heads, alive_nodes)
 
         return cluster_heads
 
-    def _elect_cluster_heads(self, alive_nodes, round_num, avg_energy):
+    def _elect_cluster_heads(self, alive_nodes, avg_energy, clusters_num):
         cluster_heads = list()
         i, j = 0, 0
-        while len(cluster_heads) != cfg.CLUSTERS_NUM:
+        color = iter(cm.rainbow(np.linspace(0, 1, 5)))
+
+        while len(cluster_heads) != clusters_num:
             node = alive_nodes[i]
+
             if node.energy_source.energy >= avg_energy:
                 node.next_hop = cfg.BS_ID
-                node.color = Colors.colors_list[j]
+                node.color = next(color)
                 node.is_head = True
                 j += 1
                 cluster_heads.append(node)
@@ -50,14 +62,21 @@ class LeachC(RoutingAlgorithm):
 
     @staticmethod
     def transmission_phase(network, heads):
-        # logging.info('Transmission phase for LEACH')
+        logging.info('Transmission phase for LEACH')
         # send data to cluster_heads
         alive_nodes = network.get_alive_nodes()
         for node in alive_nodes:
             if node.is_head:
                 continue
-            node.transmit_data(network.network_dict[node.next_hop])
+            node.transmit_data(network.get_node_by_id(node.next_hop))
+
+        if heads is None:
+            return
 
         # send data from cluster_heads to the BS
         for head in heads:
             head.transmit_data(network.get_node_by_id(head.next_hop))
+
+    def _set_next_hop_as_bs(self, alive_nodes):
+        for node in alive_nodes:
+            node.next_hop = cfg.BS_ID

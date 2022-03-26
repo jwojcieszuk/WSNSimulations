@@ -1,4 +1,13 @@
-import math
+from routing_algorithms.direct_communication import DirectCommunication
+from routing_algorithms.leach import Leach
+from routing_algorithms.leach_c import LeachC
+
+supported_algorithms = {
+    'DirectCommunication': DirectCommunication('DirectCommunication'),
+    'LeachC': LeachC('LeachC'),
+    'Leach': Leach('Leach')
+}
+supported_metrics = ['alive_nodes_num', 'avg_energy_dissipation']
 
 # NETWORK CONFIGURATION
 BS_X = 0
@@ -6,12 +15,11 @@ BS_Y = 250.0
 BS_ID = -1
 
 INITIAL_ENERGY = 0.5  # Jules
-NODES_NUM = 100
 
 # LEACH CONFIGURATION
 # desired number of cluster heads is 5% of nodes in the network
 P = float(0.05)
-CLUSTERS_NUM = P * float(NODES_NUM)
+# CLUSTERS_NUM = P * float(NODES_NUM)
 
 # Energy model
 
@@ -25,8 +33,6 @@ Eamp = 100e-12  # units in Joules/bit/m^2 (amount of energy spent by the amplifi
 EDA = 5 * 10 ** (-9)  # units in Joules/bit
 
 k = 4000  # units in bits
-
-
 
 ## Energy Configurations
 # energy dissipated at the transceiver electronic (/bit)

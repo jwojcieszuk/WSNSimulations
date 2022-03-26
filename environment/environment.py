@@ -3,9 +3,11 @@ import logging
 
 from decorators import run_once
 from environment.network import Network
+from routing_algorithms.routing_algorithm import RoutingAlgorithm
 from routing_algorithms.direct_communication import DirectCommunication
 from routing_algorithms.leach import Leach
 from routing_algorithms.leach_c import LeachC
+from metrics import RoutingAlgorithmMetrics
 
 
 class Environment:
@@ -15,35 +17,37 @@ class Environment:
         receives packets with data.
     """
 
-    def __init__(self):
-        self.network = Network()
+    def __init__(self, num_of_nodes: int):
+        self.network = Network(num_of_nodes)
         self.plot_environment("Deployed network")
         # each node informs base station about its location
         self.network.notify_position()
         self.routing_algorithm = None
 
-    def simulate(self, routing_algorithm):
+    def simulate(self, routing_algorithm: RoutingAlgorithm) -> RoutingAlgorithmMetrics:
         setattr(self, 'routing_algorithm', routing_algorithm)
-        x_coordinates, alive_nodes, avg_energy_dissipation = list(), list(), list()
-        # energy_dissipation_y = list()
+        round_num, alive_nodes_num, avg_energy_dissipation = list(), list(), list()
         round_counter = 0
-        plot_environment_once = run_once(self.plot_environment)
+        plot_environment = run_once(self.plot_environment)
 
         while True:
-            self._run_round(round_counter, plot_environment_once)
-            x_coordinates.append(round_counter)
+            logging.info(f'{routing_algorithm.__repr__()} Running round: {round_counter} ')
+            self._run_round(round_counter, plot_environment)
+            round_num.append(round_counter)
             avg_energy_dissipation.append(self.network.avg_energy_dissipation())
-            alive_nodes.append(len(self.network.get_alive_nodes()))
-            if self.check_network_life() is False:
-                logging.info("%s: Network is dead after %s rounds",
-                             type(self.routing_algorithm), round_counter)
+            alive_nodes_num.append(len(self.network.get_alive_nodes()))
+
+            if not self.check_network_life():
+                logging.info(f'{routing_algorithm.__repr__()}: Network is dead after {round_counter} rounds')
                 break
+
             round_counter += 1
 
         self.network.restore_initial_state()
-        return x_coordinates, alive_nodes, avg_energy_dissipation
 
-    def _run_round(self, round_counter, plot_enviornment_once):
+        return RoutingAlgorithmMetrics(round_num, alive_nodes_num, avg_energy_dissipation, routing_algorithm.__repr__())
+
+    def _run_round(self, round_counter: int, plot_enviornment_once):
         if isinstance(self.routing_algorithm, DirectCommunication):
             self.routing_algorithm.setup_phase(self.network.nodes)
             self.routing_algorithm.sensing_phase(self.network)
@@ -68,10 +72,9 @@ class Environment:
             self.network.reset_nodes()
 
     def check_network_life(self):
-        for node in self.network.nodes:
-            if node.alive:
-                return True
-        return False
+        if len(self.network.get_alive_nodes()) <= 5:
+            return False
+        return True
 
     def plot_environment(self, title):
         logging.info("Plotting deployed environment...")

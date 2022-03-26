@@ -1,3 +1,5 @@
+import logging
+
 import configuration as cfg
 import numpy as np
 
@@ -59,7 +61,7 @@ class Node:
 
     @_alive_node_only
     def sense_environment(self):
-        # logging.info("Node %s sensing data. Energy level: %s", self.node_id, self.energy_source.energy)
+        # logging.info(f'Node {self.node_id} sensing data. Energy level:{self.energy_source.energy}')
         self.contains_data = True
         # energy dissipated by a node for the reception ERx(k) of a message of k bits
         energy_cost = cfg.E_ELEC * cfg.k
@@ -109,4 +111,4 @@ class BaseStation:
 
     @staticmethod
     def calculate_avg_energy(nodes):
-        return sum([node.energy_source.energy for node in nodes])/cfg.NODES_NUM
+        return sum([node.energy_source.energy for node in nodes])/len(nodes)
