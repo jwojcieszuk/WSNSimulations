@@ -1,5 +1,12 @@
 {
-  "algorithms": ["DirectCommunication", "Leach", "LeachC"],
-  "metrics": ["avg_energy_dissipation", "alive_nodes_num"],
-  "num_of_nodes": 100
+  "general_scenario": {
+      "algorithms": ["DirectCommunication", "Leach", "LeachC"],
+      "metrics": ["avg_energy_dissipation", "alive_nodes_num"],
+      "num_of_nodes": 100
+  },
+  "leach_comparison": {
+      "algorithms": ["Leach", "LeachC"],
+      "metrics": ["avg_energy_dissipation", "alive_nodes_num"],
+      "num_of_nodes": 100
+  }
 }
