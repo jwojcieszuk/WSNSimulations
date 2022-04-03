@@ -10,35 +10,35 @@ from routing_algorithms.leach_c import LeachC
 from metrics import RoutingAlgorithmMetrics
 
 
-class Environment:
+class RoutingSimulator:
     """
         This class simulates behaviour of an environment that is deployed in some field.
         Basically, it sends some impulse on a 2D plane and sensors deployed in certain area
         receives packets with data.
     """
 
-    def __init__(self, num_of_nodes: int):
-        self.network = Network(num_of_nodes)
+    def __init__(self, num_of_nodes: int, initial_node_energy: float):
+        self.network = Network(num_of_nodes, initial_node_energy)
         self.plot_environment("Deployed network")
         # each node informs base station about its location
         self.network.notify_position()
         self.routing_algorithm = None
 
-    def simulate(self, routing_algorithm: RoutingAlgorithm) -> RoutingAlgorithmMetrics:
+    def simulate(self, routing_algorithm: RoutingAlgorithm, simulation_logger) -> RoutingAlgorithmMetrics:
         setattr(self, 'routing_algorithm', routing_algorithm)
         round_num, alive_nodes_num, avg_energy_dissipation = list(), list(), list()
         round_counter = 0
         plot_environment = run_once(self.plot_environment)
 
         while True:
-            logging.info(f'{routing_algorithm.__repr__()} Running round: {round_counter} ')
+            simulation_logger.info(f'{routing_algorithm.__repr__()} Running round: {round_counter} ')
             self._run_round(round_counter, plot_environment)
             round_num.append(round_counter)
             avg_energy_dissipation.append(self.network.avg_energy_dissipation())
             alive_nodes_num.append(len(self.network.get_alive_nodes()))
 
             if not self.check_network_life():
-                logging.info(f'{routing_algorithm.__repr__()}: Network is dead after {round_counter} rounds')
+                simulation_logger.info(f'{routing_algorithm.__repr__()}: Network is dead after {round_counter} rounds')
                 break
 
             round_counter += 1
@@ -82,14 +82,13 @@ class Environment:
             x_coordinates = node.pos_x
             y_coordinates = node.pos_y
             if node.is_head:
-                plt.scatter(x_coordinates, y_coordinates, c=node.color, s=500, label=str(node.node_id))
+                plt.scatter(x_coordinates, y_coordinates, color=node.color, s=500)
             else:
-                plt.scatter(x_coordinates, y_coordinates, c=node.color, s=50)
+                plt.scatter(x_coordinates, y_coordinates, color=node.color, s=50)
 
         bs_x = self.network.base_station.pos_x
         bs_y = self.network.base_station.pos_y
         plt.scatter(bs_x, bs_y, c="blue", s=100)
         # plt.scatter(x_coordinates, y_coordinates, 250)
-        plt.legend(loc="upper right")
         plt.title(title)
         plt.show()

@@ -9,12 +9,12 @@ from utils import Colors, euclidean_distance
 
 
 class Node:
-    def __init__(self, node_id, parent=0):
+    def __init__(self, node_id, energy, parent=0):
         self.node_id = node_id
         self.network_handler = parent
         self.pos_x = np.random.uniform(10, 210)
         self.pos_y = np.random.uniform(10, 210)
-        self.energy_source = Battery(self)
+        self.energy_source = Battery(self, energy)
         self.next_hop = 0
         self.contains_data = False
         self.alive = True
@@ -84,8 +84,8 @@ class Node:
         self.is_head = False
         # self.dissipated_energy = 0
 
-    def restore_initial_state(self):
-        self.energy_source = Battery(self)
+    def restore_initial_state(self, initial_node_energy):
+        self.energy_source = Battery(self, initial_node_energy)
         self.next_hop = 0
         self.contains_data = False
         self.alive = True

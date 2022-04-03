@@ -6,7 +6,7 @@ from matplotlib.pyplot import cm
 import numpy as np
 
 import configuration as cfg
-from environment.environment import Environment
+from environment.routing_simulator import RoutingSimulator
 from metrics import RoutingAlgorithmMetrics
 
 
@@ -14,19 +14,36 @@ def run():
     with open('scenario.json', 'r') as scenario_file:
         data = json.load(scenario_file)
 
-        for scenario in data.keys():
-            run_scenario(data[scenario])
+        for scenario_name in data.keys():
+            run_scenario(data[scenario_name], scenario_name)
 
 
-def run_scenario(scenario):
-    logging.basicConfig(filename=f'scenario_{scenario}.log', filemode='w', encoding='utf-8', level=logging.INFO)
+def setup_logger(name, log_file, level=logging.DEBUG):
+    handler = logging.FileHandler(log_file, mode='w')
+    logger = logging.getLogger(name)
+    logger.setLevel(level)
+    formatter = logging.Formatter(
+        '%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+
+    handler.setFormatter(formatter)
+    logger.addHandler(handler)
+    logger.propagate = False
+
+    return logger
+
+
+def run_scenario(scenario, scenario_name):
+    simulation_logger = setup_logger(f'{scenario_name}_logger', f'./logs/scenario-{scenario_name}.log')
     simulation_metrics = list()
-    env = Environment(num_of_nodes=scenario['num_of_nodes'])
+    env = RoutingSimulator(
+        num_of_nodes=scenario['num_of_nodes'],
+        initial_node_energy=scenario['initial_node_energy']
+    )
 
     for algorithm in scenario['algorithms']:
         if algorithm in cfg.supported_algorithms:
-            logging.info(f'Starting simulation for {algorithm}')
-            metric: RoutingAlgorithmMetrics = env.simulate(cfg.supported_algorithms[algorithm])
+            simulation_logger.info(f'Starting simulation for {algorithm}')
+            metric: RoutingAlgorithmMetrics = env.simulate(cfg.supported_algorithms[algorithm], simulation_logger)
             simulation_metrics.append(metric)
 
     if not simulation_metrics:
@@ -43,7 +60,7 @@ def run_scenario(scenario):
                 plt.plot(
                     simulation_metric.rounds_num,
                     metric,
-                    c=next(color),
+                    color=next(color),
                     label=simulation_metric.algorithm_name
                 )
 

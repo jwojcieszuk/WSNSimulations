@@ -3,12 +3,12 @@ import logging
 
 
 class EnergySource(object):
-    def __init__(self, parent):
-        self.energy = cfg.INITIAL_ENERGY
+    def __init__(self, parent, energy):
+        self.energy = energy
         self.node = parent
 
-    def recharge(self):
-        self.energy = cfg.INITIAL_ENERGY
+    def recharge(self, energy):
+        self.energy = energy
 
 
 class Battery(EnergySource):

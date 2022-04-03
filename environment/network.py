@@ -4,14 +4,15 @@ from environment.node import Node, BaseStation
 
 
 class Network:
-    def __init__(self, num_of_nodes):
+    def __init__(self, num_of_nodes, initial_node_energy):
         logging.info('Deploying nodes...')
 
-        self.nodes = [Node(i, self) for i in range(1, num_of_nodes)]
+        self.nodes = [Node(node_id=i, parent=self, energy=initial_node_energy) for i in range(1, num_of_nodes)]
         self.base_station = BaseStation()
         self.network_dict = {node.node_id: node for node in self.nodes}
         self.routing_protocol = None
         self.network_life = True
+        self.initial_node_energy = initial_node_energy
 
     def get_base_station(self):
         return self.get_node_by_id(cfg.BS_ID)
@@ -40,7 +41,7 @@ class Network:
 
     def restore_initial_state(self):
         for node in self.nodes:
-            node.restore_initial_state()
+            node.restore_initial_state(self.initial_node_energy)
         self.base_station = BaseStation()
 
     def notify_position(self):
