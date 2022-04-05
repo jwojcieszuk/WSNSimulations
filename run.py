@@ -64,10 +64,14 @@ def run_scenario(scenario, scenario_name):
                     label=simulation_metric.algorithm_name
                 )
 
-            plt.ylabel(scenario_metric)
+            plt.title(cfg.metrics_plot_parameters[scenario_metric]['title'])
+
+            plt.ylabel(cfg.metrics_plot_parameters[scenario_metric]['label'])
             plt.xlabel('Rounds')
-            plt.legend(loc="lower left")
+            plt.legend(loc=cfg.metrics_plot_parameters[scenario_metric]['legend_location'])
             plt.show()
+
+            plt.savefig(f'./results/{scenario_metric}.png', dpi=400)
 
 
 if __name__ == "__main__":

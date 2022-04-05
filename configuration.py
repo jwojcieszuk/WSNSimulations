@@ -8,6 +8,18 @@ supported_algorithms = {
     'Leach': Leach('Leach')
 }
 supported_metrics = ['alive_nodes_num', 'avg_energy_dissipation']
+metrics_plot_parameters = {
+    'alive_nodes_num': {
+        'label': 'Number of alive nodes',
+        'title': 'Number of alive nodes compared with round numbers',
+        'legend_location': 'upper right'
+    },
+    'avg_energy_dissipation': {
+        'label': 'Average energy dissipation per node',
+        'title': 'Average energy dissipation per node compared with round numbers',
+        'legend_location': 'lower right'
+    }
+}
 
 # NETWORK CONFIGURATION
 BS_X = 0

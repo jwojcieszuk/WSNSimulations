@@ -82,13 +82,16 @@ class RoutingSimulator:
             x_coordinates = node.pos_x
             y_coordinates = node.pos_y
             if node.is_head:
-                plt.scatter(x_coordinates, y_coordinates, color=node.color, s=500)
+                plt.scatter(x_coordinates, y_coordinates, color=node.color, s=500,
+                            label=f'Cluster-head ID:{node.node_id}')
             else:
                 plt.scatter(x_coordinates, y_coordinates, color=node.color, s=50)
 
         bs_x = self.network.base_station.pos_x
         bs_y = self.network.base_station.pos_y
-        plt.scatter(bs_x, bs_y, c="blue", s=100)
+        plt.scatter(bs_x, bs_y, c="blue", s=500, label="Base Station")
         # plt.scatter(x_coordinates, y_coordinates, 250)
         plt.title(title)
+        plt.legend()
         plt.show()
+        plt.savefig(f'./results/{title}.png', dpi=400)

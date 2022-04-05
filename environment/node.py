@@ -109,6 +109,5 @@ class BaseStation:
     def receive_data(self):
         pass
 
-    @staticmethod
-    def calculate_avg_energy(nodes):
+    def calculate_avg_energy(self, nodes):
         return sum([node.energy_source.energy for node in nodes])/len(nodes)
