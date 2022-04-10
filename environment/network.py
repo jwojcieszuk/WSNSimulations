@@ -7,7 +7,7 @@ class Network:
     def __init__(self, num_of_nodes, initial_node_energy):
         logging.info('Deploying nodes...')
 
-        self.nodes = [Node(node_id=i, parent=self, energy=initial_node_energy) for i in range(1, num_of_nodes)]
+        self.nodes = [Node(node_id=i, parent=self, energy=initial_node_energy) for i in range(0, num_of_nodes)]
         self.base_station = BaseStation()
         self.network_dict = {node.node_id: node for node in self.nodes}
         self.routing_protocol = None

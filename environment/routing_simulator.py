@@ -1,6 +1,6 @@
 import matplotlib.pyplot as plt
 import logging
-
+import seaborn as sbn
 from decorators import run_once
 from environment.network import Network
 from routing_algorithms.routing_algorithm import RoutingAlgorithm
@@ -20,14 +20,17 @@ class RoutingSimulator:
     def __init__(self, num_of_nodes: int, initial_node_energy: float):
         self.network = Network(num_of_nodes, initial_node_energy)
         self.plot_environment("Deployed network")
-        # each node informs base station about its location
-        self.network.notify_position()
+
         self.routing_algorithm = None
 
     def simulate(self, routing_algorithm: RoutingAlgorithm, simulation_logger) -> RoutingAlgorithmMetrics:
         setattr(self, 'routing_algorithm', routing_algorithm)
+        setattr(self, 'logger', simulation_logger)
         round_num, alive_nodes_num, avg_energy_dissipation = list(), list(), list()
         round_counter = 0
+        # each node informs base station about its location
+        self.network.notify_position()
+
         plot_environment = run_once(self.plot_environment)
 
         while True:
@@ -43,9 +46,16 @@ class RoutingSimulator:
 
             round_counter += 1
 
+        base_station_received_packets = self.network.base_station.received_packets
         self.network.restore_initial_state()
 
-        return RoutingAlgorithmMetrics(round_num, alive_nodes_num, avg_energy_dissipation, routing_algorithm.__repr__())
+        return RoutingAlgorithmMetrics(
+            rounds_num=round_num,
+            alive_nodes_num=alive_nodes_num,
+            avg_energy_dissipation=avg_energy_dissipation,
+            received_packets= base_station_received_packets,
+            algorithm_name=routing_algorithm.__repr__()
+        )
 
     def _run_round(self, round_counter: int, plot_enviornment_once):
         if isinstance(self.routing_algorithm, DirectCommunication):
@@ -55,10 +65,10 @@ class RoutingSimulator:
             self.network.reset_nodes()
 
         elif isinstance(self.routing_algorithm, LeachC):
-            avg_energy = self.network.base_station.calculate_avg_energy(self.network.nodes)
+            avg_energy = self.network.base_station.calculate_avg_energy(self.network.nodes, self.network.base_station)
             heads = self.routing_algorithm.setup_phase(self.network, round_counter, avg_energy)
             if plot_enviornment_once.has_run is False:
-                plot_enviornment_once("LeachC")
+                plot_enviornment_once("Deployed network divided by clusters in first round  - LeachC")
             self.routing_algorithm.sensing_phase(self.network)
             self.routing_algorithm.transmission_phase(self.network, heads)
             self.network.reset_nodes()
@@ -66,7 +76,7 @@ class RoutingSimulator:
         elif isinstance(self.routing_algorithm, Leach):
             heads = self.routing_algorithm.setup_phase(self.network, round_counter)
             if plot_enviornment_once.has_run is False:
-                plot_enviornment_once("Leach")
+                plot_enviornment_once("Deployed network divided by clusters in first round - Leach")
             self.routing_algorithm.sensing_phase(self.network)
             self.routing_algorithm.transmission_phase(self.network, heads)
             self.network.reset_nodes()
@@ -78,20 +88,22 @@ class RoutingSimulator:
 
     def plot_environment(self, title):
         logging.info("Plotting deployed environment...")
+        bs_x = self.network.base_station.pos_x
+        bs_y = self.network.base_station.pos_y
+        plt.scatter(bs_x, bs_y, c="blue", s=300, marker='^', label="Base Station")
         for node in self.network.nodes:
             x_coordinates = node.pos_x
             y_coordinates = node.pos_y
             if node.is_head:
-                plt.scatter(x_coordinates, y_coordinates, color=node.color, s=500,
-                            label=f'Cluster-head ID:{node.node_id}')
+                plt.scatter(x_coordinates, y_coordinates, color=node.color, s=300,
+                            marker='x', label=f'Cluster-head ID:{node.node_id}')
             else:
                 plt.scatter(x_coordinates, y_coordinates, color=node.color, s=50)
 
-        bs_x = self.network.base_station.pos_x
-        bs_y = self.network.base_station.pos_y
-        plt.scatter(bs_x, bs_y, c="blue", s=500, label="Base Station")
-        # plt.scatter(x_coordinates, y_coordinates, 250)
         plt.title(title)
-        plt.legend()
+        # plt.legend(bbox_to_anchor=(1, 0.5), loc='center left')
+        lgd = plt.legend(loc='center left', bbox_to_anchor=(1.0, 0.8))
+
+        plt.savefig(f'./results/{title}.png', bbox_extra_atrists=(lgd,), bbox_inches='tight', dpi=400)
+
         plt.show()
-        plt.savefig(f'./results/{title}.png', dpi=400)

@@ -103,6 +103,7 @@ class Leach(RoutingAlgorithm):
 
         # send data from cluster_heads to the BS
         for head in heads:
+            head.aggregate_data()
             head.transmit_data(network.get_node_by_id(head.next_hop))
 
     def _set_next_hop_as_bs(self, alive_nodes):

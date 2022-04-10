@@ -7,17 +7,26 @@ supported_algorithms = {
     'LeachC': LeachC('LeachC'),
     'Leach': Leach('Leach')
 }
-supported_metrics = ['alive_nodes_num', 'avg_energy_dissipation']
-metrics_plot_parameters = {
+
+supported_metrics = ['alive_nodes_num', 'avg_energy_dissipation', 'received_packets']
+metrics_plot_configuration = {
     'alive_nodes_num': {
+        'plot_type': 'plot',
         'label': 'Number of alive nodes',
         'title': 'Number of alive nodes compared with round numbers',
         'legend_location': 'upper right'
     },
     'avg_energy_dissipation': {
+        'plot_type': 'plot',
         'label': 'Average energy dissipation per node',
         'title': 'Average energy dissipation per node compared with round numbers',
         'legend_location': 'lower right'
+    },
+    'received_packets': {
+        'plot_type': 'bar',
+        'label': 'Packets',
+        'title': 'Total number of data packets delivered to Base Station',
+        'legend_location': ""
     }
 }
 
@@ -45,7 +54,7 @@ Eamp = 100e-12  # units in Joules/bit/m^2 (amount of energy spent by the amplifi
 EDA = 5 * 10 ** (-9)  # units in Joules/bit
 
 k = 4000  # units in bits
-
+HEADER = 200
 ## Energy Configurations
 # energy dissipated at the transceiver electronic (/bit)
 # energy dissipated at the data aggregation (/bit)

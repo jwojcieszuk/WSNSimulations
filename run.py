@@ -52,9 +52,18 @@ def run_scenario(scenario, scenario_name):
 
     # plotting metrics
     for scenario_metric in scenario['metrics']:
+        if scenario_metric == 'received_packets':
+            algorithm_names = [metric.algorithm_name for metric in simulation_metrics]
+            received_packets = [metric.received_packets for metric in simulation_metrics]
+            plt.bar(algorithm_names, received_packets)
+            plt.title(cfg.metrics_plot_configuration[scenario_metric]['title'])
+            plt.ylabel(cfg.metrics_plot_configuration[scenario_metric]['label'])
+            plt.savefig(f'./results/received_packets.png', dpi=400)
+            plt.show()
+            continue
+
         if scenario_metric in cfg.supported_metrics:
             color = iter(cm.rainbow(np.linspace(0, 1, len(simulation_metrics))))
-
             for simulation_metric in simulation_metrics:
                 metric = simulation_metric.__getattribute__(scenario_metric)
                 plt.plot(
@@ -64,14 +73,12 @@ def run_scenario(scenario, scenario_name):
                     label=simulation_metric.algorithm_name
                 )
 
-            plt.title(cfg.metrics_plot_parameters[scenario_metric]['title'])
-
-            plt.ylabel(cfg.metrics_plot_parameters[scenario_metric]['label'])
+            plt.title(cfg.metrics_plot_configuration[scenario_metric]['title'])
+            plt.ylabel(cfg.metrics_plot_configuration[scenario_metric]['label'])
             plt.xlabel('Rounds')
-            plt.legend(loc=cfg.metrics_plot_parameters[scenario_metric]['legend_location'])
-            plt.show()
-
+            plt.legend(loc=cfg.metrics_plot_configuration[scenario_metric]['legend_location'])
             plt.savefig(f'./results/{scenario_metric}.png', dpi=400)
+            plt.show()
 
 
 if __name__ == "__main__":

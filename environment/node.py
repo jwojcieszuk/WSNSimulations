@@ -22,32 +22,39 @@ class Node:
         self.is_head = False
         self.re_elect = 0
         self.dissipated_energy = 0
+        self.received_packets = 0
+        self.sensed_packets = 0
 
     @_alive_node_only
-    def transmit_data(self, destination_node):
-        energy_cost = self._calculate_energy_cost(destination_node)
+    def transmit_data(self, destination_node, bits=cfg.k):
+        energy_cost = self._calculate_energy_cost(destination_node, bits)
         self.dissipated_energy += energy_cost
         self.energy_source.consume(energy_cost)
-
-        destination_node.receive_data()
+        if self.is_head:
+            destination_node.receive_data(packets=self.received_packets+self.sensed_packets)
+        else:
+            destination_node.receive_data(packets=self.sensed_packets)
+        self.received_packets = 0
+        self.sensed_packets = 0
         self.contains_data = False
 
-    def receive_data(self):
+    def receive_data(self, packets):
+        # energy dissipated by a node for the reception ERx(k) of a message of k bits
         if self.is_head:
             energy_cost = (cfg.E_ELEC+cfg.EDA) * cfg.k
         else:
             energy_cost = cfg.E_ELEC * cfg.k
-        # energy dissipated by a node for the reception ERx(k) of a message of k bits
         self.dissipated_energy += energy_cost
         self.energy_source.consume(energy_cost)
+        self.received_packets += packets
         self.contains_data = True
 
-    def _calculate_energy_cost(self, destination_node):
+    def _calculate_energy_cost(self, destination_node, bits):
         distance = euclidean_distance(self, destination_node)
         if self.is_head:
-            energy = (cfg.E_ELEC+cfg.EDA) * cfg.k + cfg.Eamp * cfg.k * distance ** 2
+            energy = (cfg.E_ELEC+cfg.EDA) * cfg.k + cfg.Eamp * bits * distance ** 2
         else:
-            energy = cfg.E_ELEC * cfg.k + cfg.Eamp * cfg.k * distance ** 2
+            energy = cfg.E_ELEC * cfg.k + cfg.Eamp * bits * distance ** 2
         if self.energy_source.energy < energy:
             self.energy = 0
             self.battery_dead()
@@ -67,6 +74,7 @@ class Node:
         energy_cost = cfg.E_ELEC * cfg.k
         self.dissipated_energy += energy_cost
         self.energy_source.consume(energy_cost)
+        self.sensed_packets = 1
 
     def __repr__(self):
         return "X: " + str(self.pos_x)\
@@ -82,6 +90,7 @@ class Node:
         self.contains_data = False
         self.color = None
         self.is_head = False
+        self.sensed_packets = 0
         # self.dissipated_energy = 0
 
     def restore_initial_state(self, initial_node_energy):
@@ -92,6 +101,13 @@ class Node:
         self.color = None
         self.is_head = False
         self.dissipated_energy = 0
+        self.sensed_packets = 0
+        self.received_packets = 0
+
+    def aggregate_data(self):
+        # number of bits to be sent increase while forwarding messages
+        energy = cfg.E_DA * cfg.HEADER
+        self.energy_source.consume(energy)
 
 
 class BaseStation:
@@ -99,6 +115,7 @@ class BaseStation:
         self.node_id = cfg.BS_ID
         self.pos_x = cfg.BS_X
         self.pos_y = cfg.BS_Y
+        self.received_packets = 0
 
     def __repr__(self):
         return "Base station" +\
@@ -106,8 +123,11 @@ class BaseStation:
                " X:" + str(self.pos_x) +\
                " Y:" + str(self.pos_y)
 
-    def receive_data(self):
-        pass
+    def receive_data(self, packets):
+        self.received_packets += packets
 
-    def calculate_avg_energy(self, nodes):
+    def calculate_avg_energy(self, nodes, base_station):
+        # for node in nodes:
+        #     node.transmit_data(base_station, 400)
+
         return sum([node.energy_source.energy for node in nodes])/len(nodes)
