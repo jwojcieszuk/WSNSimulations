@@ -1,8 +1,8 @@
 {
   "experiment": {
-      "algorithms": ["DirectCommunication", "Leach", "LeachC"],
+      "algorithms": ["DirectCommunication", "Leach"],
       "metrics": ["avg_energy_dissipation", "alive_nodes_num", "received_packets"],
-      "num_of_nodes": 100,
-      "initial_node_energy": 0.2
+      "num_of_nodes": 50,
+      "initial_node_energy": 0.5
   }
 }

@@ -62,7 +62,6 @@ class LeachC(RoutingAlgorithm):
 
     @staticmethod
     def transmission_phase(network, heads):
-        logging.info('Transmission phase for LEACH')
         # send data to cluster_heads
         alive_nodes = network.get_alive_nodes()
         for node in alive_nodes:

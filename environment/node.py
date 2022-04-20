@@ -9,7 +9,7 @@ from utils import Colors, euclidean_distance
 
 
 class Node:
-    def __init__(self, node_id, energy, parent=0):
+    def __init__(self, node_id, energy, simulation_logger, parent=0):
         self.node_id = node_id
         self.network_handler = parent
         self.pos_x = np.random.uniform(10, 210)
@@ -24,9 +24,11 @@ class Node:
         self.dissipated_energy = 0
         self.received_packets = 0
         self.sensed_packets = 0
+        self.logger = simulation_logger
 
     @_alive_node_only
     def transmit_data(self, destination_node, bits=cfg.k):
+        self.logger.info(f'Node {self.node_id} transmitting data to node: {destination_node.node_id}')
         energy_cost = self._calculate_energy_cost(destination_node, bits)
         self.dissipated_energy += energy_cost
         self.energy_source.consume(energy_cost)

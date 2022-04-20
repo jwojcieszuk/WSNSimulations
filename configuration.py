@@ -37,9 +37,10 @@ BS_ID = -1
 
 INITIAL_ENERGY = 0.5  # Jules
 
+show_plots = False
 # LEACH CONFIGURATION
 # desired number of cluster heads is 5% of nodes in the network
-P = float(0.05)
+P = float(0.1)
 # CLUSTERS_NUM = P * float(NODES_NUM)
 
 # Energy model
