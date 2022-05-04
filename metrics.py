@@ -8,3 +8,4 @@ class RoutingAlgorithmMetrics:
     avg_energy_dissipation: list[float]
     received_packets: int
     algorithm_name: str
+    first_dead_node: int

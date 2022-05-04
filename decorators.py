@@ -1,5 +1,4 @@
 import functools
-import logging
 
 
 def _alive_node_only(func):

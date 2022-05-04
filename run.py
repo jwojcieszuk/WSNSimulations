@@ -84,6 +84,18 @@ def run_scenario(scenario, scenario_name):
             plt.clf()
             continue
 
+        if scenario_metric == 'first_dead_node':
+            algorithm_names = [metric.algorithm_name for metric in simulation_metrics]
+            first_dead_node = [metric.first_dead_node for metric in simulation_metrics]
+            plt.bar(algorithm_names, first_dead_node)
+            plt.title(cfg.metrics_plot_configuration[scenario_metric]['title'])
+            plt.ylabel(cfg.metrics_plot_configuration[scenario_metric]['label'])
+            plt.savefig(f'./results/first_dead_node.png', dpi=400)
+            if cfg.show_plots:
+                plt.show()
+            plt.clf()
+            continue
+
         if scenario_metric in cfg.supported_metrics:
             color = iter(cm.rainbow(np.linspace(0, 1, len(simulation_metrics))))
             for simulation_metric in simulation_metrics:

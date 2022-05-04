@@ -12,8 +12,8 @@ class Node:
     def __init__(self, node_id, energy, simulation_logger, parent=0):
         self.node_id = node_id
         self.network_handler = parent
-        self.pos_x = np.random.uniform(10, 210)
-        self.pos_y = np.random.uniform(10, 210)
+        self.pos_x = np.random.uniform(20, 170)
+        self.pos_y = np.random.uniform(20, 170)
         self.energy_source = Battery(self, energy)
         self.next_hop = 0
         self.contains_data = False
@@ -58,7 +58,6 @@ class Node:
         else:
             energy = cfg.E_ELEC * cfg.k + cfg.Eamp * bits * distance ** 2
         if self.energy_source.energy < energy:
-            self.energy = 0
             self.battery_dead()
 
         return energy

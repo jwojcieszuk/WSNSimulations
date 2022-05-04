@@ -55,7 +55,7 @@ class Leach(RoutingAlgorithm):
         cluster_heads = list()
         i, j = 0, 0
 
-        color = iter(cm.rainbow(np.linspace(0, 1, 5)))
+        color = iter(cm.rainbow(np.linspace(0, 1, clusters_num)))
 
         while len(cluster_heads) != clusters_num:
             threshold = cfg.P / (1 - cfg.P * (math.fmod(round_num, 1 / cfg.P)))

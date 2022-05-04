@@ -3,7 +3,7 @@ from routing_algorithms.leach import Leach
 from routing_algorithms.leach_c import LeachC
 
 supported_algorithms = {
-    'DirectCommunication': DirectCommunication('DirectCommunication'),
+    'DirectCommunication': DirectCommunication('Direct Communication'),
     'LeachC': LeachC('LeachC'),
     'Leach': Leach('Leach')
 }
@@ -27,6 +27,12 @@ metrics_plot_configuration = {
         'label': 'Packets',
         'title': 'Total number of data packets delivered to Base Station',
         'legend_location': ""
+    },
+    'first_dead_node': {
+        'plot_type': 'bar',
+        'label': 'Round',
+        'title': 'First dead node',
+        'legend_location': ""
     }
 }
 
@@ -40,7 +46,7 @@ INITIAL_ENERGY = 0.5  # Jules
 show_plots = False
 # LEACH CONFIGURATION
 # desired number of cluster heads is 5% of nodes in the network
-P = float(0.1)
+P = float(0.05)
 # CLUSTERS_NUM = P * float(NODES_NUM)
 
 # Energy model

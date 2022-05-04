@@ -29,7 +29,7 @@ class LeachC(RoutingAlgorithm):
     def _elect_cluster_heads(self, alive_nodes, avg_energy, clusters_num):
         cluster_heads = list()
         i, j = 0, 0
-        color = iter(cm.rainbow(np.linspace(0, 1, 5)))
+        color = iter(cm.rainbow(np.linspace(0, 1, clusters_num)))
 
         while len(cluster_heads) != clusters_num:
             node = alive_nodes[i]
