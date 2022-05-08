@@ -9,7 +9,6 @@ from routing_algorithms.leach import Leach
 from routing_algorithms.leach_c import LeachC
 from metrics import RoutingAlgorithmMetrics
 import configuration as cfg
-from utils import DuplicateFilter
 
 
 class RoutingSimulator:
@@ -38,7 +37,9 @@ class RoutingSimulator:
         first_dead_node = 0
 
         while True:
-            simulation_logger.info(f'{routing_algorithm.__repr__()} Running round: {round_counter} ')
+            simulation_logger.info(f'{routing_algorithm.__repr__()} Running round: {round_counter}. '
+                                   f'Nodes alive: {len(self.network.get_alive_nodes())}')
+
             node_dead_round = self._run_round(round_counter, plot_environment, log_dead_node_once)
             round_num.append(round_counter)
             avg_energy_dissipation.append(self.network.avg_energy_dissipation())
@@ -54,6 +55,7 @@ class RoutingSimulator:
                 break
 
             round_counter += 1
+
         base_station_received_packets = self.network.base_station.received_packets
         self.network.restore_initial_state()
 
@@ -66,7 +68,7 @@ class RoutingSimulator:
             algorithm_name=routing_algorithm.__repr__()
         )
 
-    def _run_round(self, round_counter: int, plot_enviornment_once, log_dead_node_once):
+    def _run_round(self, round_counter: int, plot_environment_once, log_dead_node_once):
         first_dead_node = 0
 
         if isinstance(self.routing_algorithm, DirectCommunication):
@@ -82,8 +84,8 @@ class RoutingSimulator:
         elif isinstance(self.routing_algorithm, LeachC):
             avg_energy = self.network.base_station.calculate_avg_energy(self.network.nodes, self.network.base_station)
             heads = self.routing_algorithm.setup_phase(self.network, round_counter, avg_energy)
-            if plot_enviornment_once.has_run is False:
-                plot_enviornment_once("Deployed network divided by clusters in first round  - LeachC")
+            if plot_environment_once.has_run is False:
+                plot_environment_once("Deployed network divided by clusters in first round  - LeachC")
             self.routing_algorithm.sensing_phase(self.network)
             self.routing_algorithm.transmission_phase(self.network, heads)
             if len(self.network.get_alive_nodes()) < len(self.network.nodes):
@@ -94,8 +96,8 @@ class RoutingSimulator:
 
         elif isinstance(self.routing_algorithm, Leach):
             heads = self.routing_algorithm.setup_phase(self.network, round_counter)
-            if plot_enviornment_once.has_run is False:
-                plot_enviornment_once("Deployed network divided by clusters in first round - Leach")
+            if plot_environment_once.has_run is False:
+                plot_environment_once("Deployed network divided by clusters in first round - Leach")
             self.routing_algorithm.sensing_phase(self.network)
             self.routing_algorithm.transmission_phase(self.network, heads)
             if len(self.network.get_alive_nodes()) < len(self.network.nodes):

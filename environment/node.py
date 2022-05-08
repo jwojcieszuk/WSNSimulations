@@ -28,8 +28,10 @@ class Node:
 
     @_alive_node_only
     def transmit_data(self, destination_node, bits=cfg.k):
-        self.logger.info(f'Node {self.node_id} transmitting data to node: {destination_node.node_id}')
         energy_cost = self._calculate_energy_cost(destination_node, bits)
+        if energy_cost == 0:
+            return
+
         self.dissipated_energy += energy_cost
         self.energy_source.consume(energy_cost)
         if self.is_head:
@@ -43,7 +45,7 @@ class Node:
     def receive_data(self, packets):
         # energy dissipated by a node for the reception ERx(k) of a message of k bits
         if self.is_head:
-            energy_cost = (cfg.E_ELEC+cfg.EDA) * cfg.k
+            energy_cost = (cfg.E_ELEC+cfg.E_DA) * cfg.k
         else:
             energy_cost = cfg.E_ELEC * cfg.k
         self.dissipated_energy += energy_cost
@@ -54,15 +56,17 @@ class Node:
     def _calculate_energy_cost(self, destination_node, bits):
         distance = euclidean_distance(self, destination_node)
         if self.is_head:
-            energy = (cfg.E_ELEC+cfg.EDA) * cfg.k + cfg.Eamp * bits * distance ** 2
+            energy = (cfg.E_ELEC+cfg.E_DA) * cfg.k + cfg.E_AMP * bits * distance ** 2
         else:
-            energy = cfg.E_ELEC * cfg.k + cfg.Eamp * bits * distance ** 2
+            energy = cfg.E_ELEC * cfg.k + cfg.E_AMP * bits * distance ** 2
         if self.energy_source.energy < energy:
             self.battery_dead()
+            return 0
 
         return energy
 
     def battery_dead(self):
+        self.logger.info(f'Node {self.node_id} is dead.')
         self.alive = False
         self.energy_source.energy = 0
         self.color = Colors.BLACK

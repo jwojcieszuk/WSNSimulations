@@ -24,7 +24,10 @@ def run():
         data = json.load(scenario_file)
 
         for scenario_name in data.keys():
-            run_scenario(data[scenario_name], scenario_name)
+            try:
+                run_scenario(data[scenario_name], scenario_name)
+            except NotImplementedError:
+                return
 
 
 def setup_parser():
@@ -46,7 +49,10 @@ def setup_logger(name, log_file, level=logging.DEBUG):
     return logger
 
 
-def run_scenario(scenario, scenario_name):
+def run_scenario(scenario: dict[str], scenario_name: str):
+    if not validate_scenario(scenario):
+        raise NotImplementedError
+
     logging.info(f'Starting simulation for scenario: {scenario_name}')
     # create directories for logs and results
     Path("./logs").mkdir(parents=True, exist_ok=True)
@@ -65,10 +71,6 @@ def run_scenario(scenario, scenario_name):
             simulation_logger.info(f'Starting simulation for {algorithm}')
             metric: RoutingAlgorithmMetrics = env.simulate(cfg.supported_algorithms[algorithm], simulation_logger)
             simulation_metrics.append(metric)
-
-    if not simulation_metrics:
-        logging.info("Couldn't find any supported routing algorithms defined in scenario")
-        return
 
     # plotting metrics
     for scenario_metric in scenario['metrics']:
@@ -115,6 +117,28 @@ def run_scenario(scenario, scenario_name):
             if cfg.show_plots:
                 plt.show()
             plt.clf()
+
+
+def validate_scenario(scenario: dict[str]) -> bool:
+    for algorithm in scenario['algorithms']:
+        if algorithm not in cfg.supported_algorithms:
+            logging.error("Routing algorithm defined in scenario is not supported.")
+            return False
+
+    for metric in scenario['metrics']:
+        if metric not in cfg.supported_metrics:
+            logging.error("Metric defined in scenario is not supported.")
+            return False
+
+    if scenario["num_of_nodes"] > 500 or scenario["num_of_nodes"] <= 0:
+        logging.error("Invalid num_of_nodes number.")
+        return False
+
+    if scenario["initial_node_energy"] > 10 or scenario["initial_node_energy"] < 0:
+        logging.error("Invalid initial_node_energy number.")
+        return False
+
+    return True
 
 
 if __name__ == "__main__":
