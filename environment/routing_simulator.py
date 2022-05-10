@@ -1,4 +1,5 @@
 import matplotlib.pyplot as plt
+import matplotlib.lines as mlines
 import logging
 
 from decorators import run_once
@@ -116,21 +117,32 @@ class RoutingSimulator:
     def plot_environment(self, title):
         bs_x = self.network.base_station.pos_x
         bs_y = self.network.base_station.pos_y
-        plt.scatter(bs_x, bs_y, c="blue", s=300, marker='^', label="Base Station")
+        plt.scatter(bs_x, bs_y, c="blue", s=300, marker='^')
+        blue_base_station = mlines.Line2D([], [], color='blue', marker='^', linestyle='None',
+                                          markersize=10, label='Base station')
+        if 'Leach' in title:
+            black_x_marker = mlines.Line2D([], [], color='black', marker='x', linestyle='None',
+                                           markersize=10, label='Cluster-heads')
+
+            plt.legend(handles=[black_x_marker, blue_base_station])
+        else:
+            plt.legend(handles=[blue_base_station])
+
         for node in self.network.nodes:
             x_coordinates = node.pos_x
             y_coordinates = node.pos_y
             if node.is_head:
-                plt.scatter(x_coordinates, y_coordinates, color=node.color, s=300,
-                            marker='x', label=f'Cluster-head ID:{node.node_id}')
+                plt.scatter(x_coordinates, y_coordinates, color=node.color, s=150,
+                            marker='x')
             else:
-                plt.scatter(x_coordinates, y_coordinates, color=node.color, s=50)
+                plt.scatter(x_coordinates, y_coordinates, color=node.color, s=10)
 
         plt.title(title)
         # plt.legend(bbox_to_anchor=(1, 0.5), loc='center left')
-        lgd = plt.legend(loc='center left', bbox_to_anchor=(1.0, 0.8))
+        # lgd = plt.legend(loc='center left', bbox_to_anchor=(1.0, 0.6))
 
-        plt.savefig(f'./results/{title}.png', bbox_extra_artists=(lgd,), bbox_inches='tight', dpi=400)
+        filename = title.replace(" ", "_").lower()
+        plt.savefig(f'./results/{filename}.png')
         if cfg.show_plots:
             plt.show()
         plt.clf()

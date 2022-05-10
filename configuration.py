@@ -38,7 +38,7 @@ metrics_plot_configuration = {
 
 # NETWORK CONFIGURATION
 BS_X = 0
-BS_Y = 250.0
+BS_Y = 250
 BS_ID = -1
 
 show_plots = False
@@ -57,7 +57,7 @@ ERx = 50 * 10 ** (-9)  # units in Joules/bit
 E_AMP = 100e-12  # units in Joules/bit/m^2 (amount of energy spent by the amplifier to transmit the bits)
 # Data Aggregation Energy
 
-k = 4000  # units in bits
+k = 2000  # units in bits
 HEADER = 200
 ## Energy Configurations
 # energy dissipated at the transceiver electronic (/bit)

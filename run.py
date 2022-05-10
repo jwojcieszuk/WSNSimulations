@@ -130,7 +130,7 @@ def validate_scenario(scenario: dict[str]) -> bool:
             logging.error("Metric defined in scenario is not supported.")
             return False
 
-    if scenario["num_of_nodes"] > 500 or scenario["num_of_nodes"] <= 0:
+    if scenario["num_of_nodes"] > 1000 or scenario["num_of_nodes"] <= 0:
         logging.error("Invalid num_of_nodes number.")
         return False
 

@@ -1,0 +1,26 @@
+Q:
+ - opis wynikow w jednym rozdziale na koncu?
+ - czy pod kazdym wykresem?
+ - opisywac ograniczenia symulatora? czyli np liczba node'ow max do 500, zadziala dla wiekszej ilosci ale bedzie juz dlugo sie wykonywal program i nieczytelny wykres
+
+TODO GENERAL:
+ - unit testy - walidacja json'a zrobiona, dorobic testy funkcjonalne
+
+** wspomniec o agregacji aggregate_data
+
+
+we wstepie tekst o tym ze symulator jest napisany w pythonie
+gdzie napisac dlaczego zdecydowalem sie na napisanie symulatora od zera zamiast uzycia istniejacych symulatorow
+co opisac w teorii?
+wielkosc obszaru moze byc zmieniana, ale wplywa to na dlugosc direct communication bo za bliska odleglosc
+
+
+Note that 0 cluster-heads and 100% cluster-
+heads is the same as direct communication
+
+ideas:
+experiments&results
+    - table 2 z artykulu o leach
+related works:
+    - na koncu rozdzialu wspomniec o tym ze jest duzo publikacji z modyfikacjami do leach
+
