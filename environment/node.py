@@ -3,7 +3,7 @@ import logging
 import configuration as cfg
 import numpy as np
 
-from decorators import _alive_node_only
+from decorators import _alive_node_only, _cluster_head_only
 from environment.energy_source import Battery
 from utils import Colors, euclidean_distance
 
@@ -12,8 +12,8 @@ class Node:
     def __init__(self, node_id, energy, simulation_logger, parent=0):
         self.node_id = node_id
         self.network_handler = parent
-        self.pos_x = np.random.uniform(20, 170)
-        self.pos_y = np.random.uniform(20, 170)
+        self.pos_x = np.random.uniform(-25, 25)
+        self.pos_y = np.random.uniform(0, 50)
         self.energy_source = Battery(self, energy)
         self.next_hop = 0
         self.contains_data = False
@@ -25,6 +25,7 @@ class Node:
         self.received_packets = 0
         self.sensed_packets = 0
         self.logger = simulation_logger
+        self.reelect_round_num = 0
 
     @_alive_node_only
     def transmit_data(self, destination_node, bits=cfg.k):
@@ -109,10 +110,22 @@ class Node:
         self.sensed_packets = 0
         self.received_packets = 0
 
+    @_cluster_head_only
     def aggregate_data(self):
         # number of bits to be sent increase while forwarding messages
         energy = cfg.E_DA * cfg.HEADER
         self.energy_source.consume(energy)
+
+    @_cluster_head_only
+    def announce_entire_network(self, nodes):
+        for node in nodes:
+            energy_cost = self._calculate_energy_cost(node, cfg.k)
+            if energy_cost == 0:
+                return
+
+            self.dissipated_energy += energy_cost
+            self.energy_source.consume(energy_cost)
+            node.receive_data(packets=0)
 
 
 class BaseStation:

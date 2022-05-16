@@ -8,7 +8,8 @@ supported_algorithms = {
     'Leach': Leach('Leach')
 }
 
-supported_metrics = ['alive_nodes_num', 'avg_energy_dissipation', 'received_packets', 'first_dead_node']
+supported_metrics = ['alive_nodes_num', 'avg_energy_dissipation', 'received_packets', 'first_dead_node',
+                     'total_energy_dissipation', 'dead_nodes_num']
 metrics_plot_configuration = {
     'alive_nodes_num': {
         'plot_type': 'plot',
@@ -33,13 +34,34 @@ metrics_plot_configuration = {
         'label': 'Round',
         'title': 'First dead node',
         'legend_location': ""
-    }
+    },
+    'total_energy_dissipation': {
+        'plot_type': 'bar',
+        'label': 'Dissipated Energy',
+        'title': 'Total energy dissipated by each protocol',
+        'legend_location': ""
+    },
+    'dead_nodes_num': {
+        'plot_type': 'plot',
+        'label': 'Number of dead nodes each round',
+        'title': 'Number of dead nodes',
+        'legend_location': 'upper left'
+    },
 }
 
 # NETWORK CONFIGURATION
-BS_X = 0
-BS_Y = 250
+# bs in the center
+# BS_X = 100
+# BS_Y = 100
+# bs located away
+# BS_X = 0
+# BS_Y = 250.0
 BS_ID = -1
+
+#LEACH publication config
+BS_X = 0
+BS_Y = -100
+
 
 show_plots = False
 # LEACH CONFIGURATION
@@ -49,10 +71,10 @@ P = float(0.05)
 
 
 # Energy required to run circuity (both for transmitter and receiver)
-E_ELEC = 50 * 10 ** (-9)  # units in Joules/bit
+E_ELEC = 50e-9  # units in Joules/bit
 E_DA = 5e-9 # Joules
-ETx = 50 * 10 ** (-9)  # units in Joules/bit
-ERx = 50 * 10 ** (-9)  # units in Joules/bit
+ETx = 50e-10  # units in Joules/bit
+ERx = 50e-10  # units in Joules/bit
 # Transmit Amplifier Types %
 E_AMP = 100e-12  # units in Joules/bit/m^2 (amount of energy spent by the amplifier to transmit the bits)
 # Data Aggregation Energy

@@ -9,3 +9,5 @@ class RoutingAlgorithmMetrics:
     received_packets: int
     algorithm_name: str
     first_dead_node: int
+    total_energy_dissipation: int
+    dead_nodes_num: list[int]

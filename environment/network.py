@@ -57,3 +57,7 @@ class Network:
 
     def avg_energy_dissipation(self):
         return sum([node.dissipated_energy for node in self.nodes])/len(self.nodes)
+
+    def total_energy_dissipation(self):
+        return sum([node.dissipated_energy for node in self.nodes])
+

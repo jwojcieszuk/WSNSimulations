@@ -40,7 +40,7 @@ class Leach(RoutingAlgorithm):
         # logging.info('LEACH: Advertisement Phase...')
 
         alive_nodes = network.get_alive_nodes()
-        clusters_num = round(len(alive_nodes) * cfg.P)
+        clusters_num = math.floor(len(alive_nodes) * cfg.P)
         if clusters_num == 0:
             self._set_next_hop_as_bs(alive_nodes)
             return
@@ -52,20 +52,32 @@ class Leach(RoutingAlgorithm):
 
     @staticmethod
     def _elect_cluster_heads(alive_nodes, round_num, clusters_num):
-        cluster_heads = list()
-        i, j = 0, 0
+        threshold = cfg.P / (1 - cfg.P * (math.fmod(round_num, 1 / cfg.P)))
+        reelect_round_num = 1/cfg.P
+
+        if threshold == cfg.P:
+            for node in alive_nodes:
+                node.reelect_round_num = 0
 
         color = iter(cm.rainbow(np.linspace(0, 1, clusters_num)))
+        cluster_heads = list()
 
+        # nodes_can_be_reelected = [node for node in alive_nodes if node.reelect_round_num <= round_num]
+        # if len(nodes_can_be_reelected) < clusters_num:
+        #     pass
+
+        i, j = 0, 0
         while len(cluster_heads) != clusters_num:
-            threshold = cfg.P / (1 - cfg.P * (math.fmod(round_num, 1 / cfg.P)))
             node = alive_nodes[i]
             random_num = np.random.uniform(0, 1)
 
-            if random_num < threshold:
+            if random_num < threshold and node.reelect_round_num <= round_num:
                 node.next_hop = cfg.BS_ID
                 node.color = next(color)
                 node.is_head = True
+                node.reelect_round_num = round_num + reelect_round_num
+                # energy consumed by the CH to broadcast announcement message to the network
+                # node.announce_entire_network(alive_nodes)
                 j += 1
                 cluster_heads.append(node)
 

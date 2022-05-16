@@ -98,6 +98,18 @@ def run_scenario(scenario: dict[str], scenario_name: str):
             plt.clf()
             continue
 
+        if scenario_metric == 'total_energy_dissipation':
+            algorithm_names = [metric.algorithm_name for metric in simulation_metrics]
+            total_energy_dissipation = [metric.total_energy_dissipation for metric in simulation_metrics]
+            plt.bar(algorithm_names, total_energy_dissipation)
+            plt.title(cfg.metrics_plot_configuration[scenario_metric]['title'])
+            plt.ylabel(cfg.metrics_plot_configuration[scenario_metric]['label'])
+            plt.savefig(f'./results/total_energy_dissipation.png', dpi=400)
+            if cfg.show_plots:
+                plt.show()
+            plt.clf()
+            continue
+
         if scenario_metric in cfg.supported_metrics:
             color = iter(cm.rainbow(np.linspace(0, 1, len(simulation_metrics))))
             for simulation_metric in simulation_metrics:

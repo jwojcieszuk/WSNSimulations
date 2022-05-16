@@ -1,4 +1,5 @@
 import functools
+import logging
 
 
 def _alive_node_only(func):
@@ -9,6 +10,17 @@ def _alive_node_only(func):
         elif node.energy_source.energy == 0:
             # logging.info("Node %s is not alive! Cannot sense data.", node.node_id)
             pass
+
+    return wrapper
+
+
+def _cluster_head_only(func):
+    @functools.wraps(func)
+    def wrapper(node, *args, **kwargs):
+        if node.is_head:
+            func(node, *args, **kwargs)
+        else:
+            logging.info("Node %s is not cluster head!", node.node_id)
 
     return wrapper
 

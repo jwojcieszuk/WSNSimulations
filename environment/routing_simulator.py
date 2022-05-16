@@ -28,7 +28,7 @@ class RoutingSimulator:
         logging.info(f'Simulating routing algorithm: {routing_algorithm.__repr__()}...')
         setattr(self, 'routing_algorithm', routing_algorithm)
         setattr(self, 'logger', simulation_logger)
-        round_num, alive_nodes_num, avg_energy_dissipation = list(), list(), list()
+        round_num, alive_nodes_num, avg_energy_dissipation, dead_nodes_num = list(), list(), list(), list()
         round_counter = 0
         # each node informs base station about its location
         self.network.notify_position()
@@ -45,6 +45,7 @@ class RoutingSimulator:
             round_num.append(round_counter)
             avg_energy_dissipation.append(self.network.avg_energy_dissipation())
             alive_nodes_num.append(len(self.network.get_alive_nodes()))
+            dead_nodes_num.append(len(self.network.nodes) - len(self.network.get_alive_nodes()))
 
             # if this variable is not None, it contains round number of first dead node
             if node_dead_round:
@@ -58,6 +59,7 @@ class RoutingSimulator:
             round_counter += 1
 
         base_station_received_packets = self.network.base_station.received_packets
+        total_energy_dissipation = self.network.total_energy_dissipation()
         self.network.restore_initial_state()
 
         return RoutingAlgorithmMetrics(
@@ -66,6 +68,8 @@ class RoutingSimulator:
             avg_energy_dissipation=avg_energy_dissipation,
             received_packets=base_station_received_packets,
             first_dead_node=first_dead_node,
+            total_energy_dissipation=total_energy_dissipation,
+            dead_nodes_num=dead_nodes_num,
             algorithm_name=routing_algorithm.__repr__()
         )
 
@@ -76,19 +80,24 @@ class RoutingSimulator:
             self.routing_algorithm.setup_phase(self.network.nodes)
             self.routing_algorithm.sensing_phase(self.network)
             self.routing_algorithm.transmission_phase(self.network)
+
             if len(self.network.get_alive_nodes()) < len(self.network.nodes):
                 if log_dead_node_once.has_run is False:
                     first_dead_node = round_counter
                     log_dead_node_once(round_counter)
+
             self.network.reset_nodes()
 
         elif isinstance(self.routing_algorithm, LeachC):
-            avg_energy = self.network.base_station.calculate_avg_energy(self.network.nodes, self.network.base_station)
+            avg_energy = self.network.base_station.calculate_avg_energy(self.network.get_alive_nodes(), self.network.base_station)
             heads = self.routing_algorithm.setup_phase(self.network, round_counter, avg_energy)
+
             if plot_environment_once.has_run is False:
                 plot_environment_once("Deployed network divided by clusters in first round  - LeachC")
+
             self.routing_algorithm.sensing_phase(self.network)
             self.routing_algorithm.transmission_phase(self.network, heads)
+
             if len(self.network.get_alive_nodes()) < len(self.network.nodes):
                 if log_dead_node_once.has_run is False:
                     first_dead_node = round_counter
@@ -97,14 +106,18 @@ class RoutingSimulator:
 
         elif isinstance(self.routing_algorithm, Leach):
             heads = self.routing_algorithm.setup_phase(self.network, round_counter)
+
             if plot_environment_once.has_run is False:
                 plot_environment_once("Deployed network divided by clusters in first round - Leach")
+
             self.routing_algorithm.sensing_phase(self.network)
             self.routing_algorithm.transmission_phase(self.network, heads)
+
             if len(self.network.get_alive_nodes()) < len(self.network.nodes):
                 if log_dead_node_once.has_run is False:
                     first_dead_node = round_counter
                     log_dead_node_once(round_counter)
+
             self.network.reset_nodes()
 
         return first_dead_node if first_dead_node != 0 else None
