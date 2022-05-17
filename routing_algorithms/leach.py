@@ -76,8 +76,6 @@ class Leach(RoutingAlgorithm):
                 node.color = next(color)
                 node.is_head = True
                 node.reelect_round_num = round_num + reelect_round_num
-                # energy consumed by the CH to broadcast announcement message to the network
-                # node.announce_entire_network(alive_nodes)
                 j += 1
                 cluster_heads.append(node)
 

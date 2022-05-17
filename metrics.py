@@ -1,13 +1,13 @@
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 
 
 @dataclass
 class RoutingAlgorithmMetrics:
-    rounds_num: list[int]
-    alive_nodes_num: list[int]
-    avg_energy_dissipation: list[float]
-    received_packets: int
-    algorithm_name: str
-    first_dead_node: int
-    total_energy_dissipation: int
-    dead_nodes_num: list[int]
+    rounds_num: list[int] = field(default_factory=list)
+    alive_nodes_num: list[int] = field(default_factory=list)
+    avg_energy_dissipation: list[float] = field(default_factory=list)
+    received_packets: int = 0
+    algorithm_name: str = ""
+    first_dead_node: int = 0
+    total_energy_dissipation: int = 0
+    dead_nodes_num: list[int] = field(default_factory=list)

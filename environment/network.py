@@ -4,7 +4,7 @@ from environment.node import Node, BaseStation
 
 
 class Network:
-    def __init__(self, num_of_nodes, initial_node_energy, simulation_logger):
+    def __init__(self, num_of_nodes, initial_node_energy, simulation_logger, bs_x, bs_y):
         logging.info('Deploying nodes...')
 
         self.nodes = [
@@ -14,7 +14,9 @@ class Network:
                 simulation_logger=simulation_logger
             ) for i in range(0, num_of_nodes)
         ]
-        self.base_station = BaseStation()
+        self.bs_x = bs_x
+        self.bs_y = bs_y
+        self.base_station = BaseStation(bs_x, bs_y)
         self.network_dict = {node.node_id: node for node in self.nodes}
         self.routing_protocol = None
         self.network_life = True
@@ -48,7 +50,7 @@ class Network:
     def restore_initial_state(self):
         for node in self.nodes:
             node.restore_initial_state(self.initial_node_energy)
-        self.base_station = BaseStation()
+        self.base_station = BaseStation(self.bs_x, self.bs_y)
 
     def notify_position(self):
         """Every node transmit its position directly to the base station."""

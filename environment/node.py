@@ -12,8 +12,8 @@ class Node:
     def __init__(self, node_id, energy, simulation_logger, parent=0):
         self.node_id = node_id
         self.network_handler = parent
-        self.pos_x = np.random.uniform(-25, 25)
-        self.pos_y = np.random.uniform(0, 50)
+        self.pos_x = np.random.uniform(cfg.target_field_x_axis[0], cfg.target_field_x_axis[1])
+        self.pos_y = np.random.uniform(cfg.target_field_x_axis[0], cfg.target_field_x_axis[1])
         self.energy_source = Battery(self, energy)
         self.next_hop = 0
         self.contains_data = False
@@ -119,7 +119,7 @@ class Node:
     @_cluster_head_only
     def announce_entire_network(self, nodes):
         for node in nodes:
-            energy_cost = self._calculate_energy_cost(node, cfg.k)
+            energy_cost = self._calculate_energy_cost(node, 100)
             if energy_cost == 0:
                 return
 
@@ -129,10 +129,10 @@ class Node:
 
 
 class BaseStation:
-    def __init__(self):
+    def __init__(self, pos_x, pos_y):
         self.node_id = cfg.BS_ID
-        self.pos_x = cfg.BS_X
-        self.pos_y = cfg.BS_Y
+        self.pos_x = pos_x
+        self.pos_y = pos_y
         self.received_packets = 0
 
     def __repr__(self):
@@ -145,7 +145,7 @@ class BaseStation:
         self.received_packets += packets
 
     def calculate_avg_energy(self, nodes, base_station):
-        # for node in nodes:
-        #     node.transmit_data(base_station, 400)
+        for node in nodes:
+            node.transmit_data(base_station, 10)
 
         return sum([node.energy_source.energy for node in nodes])/len(nodes)

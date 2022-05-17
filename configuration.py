@@ -37,8 +37,8 @@ metrics_plot_configuration = {
     },
     'total_energy_dissipation': {
         'plot_type': 'bar',
-        'label': 'Dissipated Energy',
-        'title': 'Total energy dissipated by each protocol',
+        'label': 'Dissipated energy (Joules)',
+        'title': 'Total energy dissipated by each protocol up to round 200',
         'legend_location': ""
     },
     'dead_nodes_num': {
@@ -49,24 +49,12 @@ metrics_plot_configuration = {
     },
 }
 
-# NETWORK CONFIGURATION
-# bs in the center
-# BS_X = 100
-# BS_Y = 100
-# bs located away
-# BS_X = 0
-# BS_Y = 250.0
 BS_ID = -1
-
-#LEACH publication config
-BS_X = 0
-BS_Y = -100
-
 
 show_plots = False
 # LEACH CONFIGURATION
 # desired number of cluster heads is 5% of nodes in the network
-P = float(0.05)
+P = float(0.1)
 # CLUSTERS_NUM = P * float(NODES_NUM)
 
 
@@ -84,3 +72,7 @@ HEADER = 200
 ## Energy Configurations
 # energy dissipated at the transceiver electronic (/bit)
 # energy dissipated at the data aggregation (/bit)
+
+target_field_x_axis = [0, 100]
+target_field_y_axis = [0, 100]
+

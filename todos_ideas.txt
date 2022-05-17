@@ -18,9 +18,5 @@ wielkosc obszaru moze byc zmieniana, ale wplywa to na dlugosc direct communicati
 Note that 0 cluster-heads and 100% cluster-
 heads is the same as direct communication
 
-ideas:
-experiments&results
-    - table 2 z artykulu o leach
-related works:
-    - na koncu rozdzialu wspomniec o tym ze jest duzo publikacji z modyfikacjami do leach
 
+leach vs leach_c - pokombinowac

@@ -63,13 +63,16 @@ def run_scenario(scenario: dict[str], scenario_name: str):
     env = RoutingSimulator(
         num_of_nodes=scenario['num_of_nodes'],
         initial_node_energy=scenario['initial_node_energy'],
-        simulation_logger=simulation_logger
+        simulation_logger=simulation_logger,
+        bs_location=scenario['base_station_location']
     )
+
 
     for algorithm in scenario['algorithms']:
         if algorithm in cfg.supported_algorithms:
             simulation_logger.info(f'Starting simulation for {algorithm}')
             metric: RoutingAlgorithmMetrics = env.simulate(cfg.supported_algorithms[algorithm], simulation_logger)
+            env.energy_metrics = RoutingAlgorithmMetrics()
             simulation_metrics.append(metric)
 
     # plotting metrics
@@ -148,6 +151,10 @@ def validate_scenario(scenario: dict[str]) -> bool:
 
     if scenario["initial_node_energy"] > 10 or scenario["initial_node_energy"] < 0:
         logging.error("Invalid initial_node_energy number.")
+        return False
+
+    if "base_station_location" not in scenario:
+        logging.error("Base station location not given in scenario.")
         return False
 
     return True
