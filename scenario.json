@@ -1,9 +1,9 @@
 {
   "leach_leach-c_100_nodes": {
       "algorithms": ["LeachC", "Leach"],
-      "metrics": ["total_energy_dissipation", "alive_nodes_num",
+      "metrics": ["avg_energy_dissipation","total_energy_dissipation", "alive_nodes_num",
                   "received_packets", "first_dead_node"],
-      "num_of_nodes": 100,
+      "num_of_nodes": 50,
       "initial_node_energy": 0.2,
       "base_station_location": [50, 50]
   }

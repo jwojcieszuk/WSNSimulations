@@ -19,4 +19,7 @@ Note that 0 cluster-heads and 100% cluster-
 heads is the same as direct communication
 
 
-leach vs leach_c - pokombinowac
+leach vs leach_c - pok
+
+[14] - brak informacji o wartosci cfg.k
+

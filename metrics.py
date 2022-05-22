@@ -11,3 +11,4 @@ class RoutingAlgorithmMetrics:
     first_dead_node: int = 0
     total_energy_dissipation: int = 0
     dead_nodes_num: list[int] = field(default_factory=list)
+    received_packets_round_30: int = 0

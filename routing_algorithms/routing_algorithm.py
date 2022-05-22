@@ -18,9 +18,9 @@ class RoutingAlgorithm:
         pass
 
     @staticmethod
-    def sensing_phase(network):
+    def sensing_phase(network, not_consume=False):
         for node in network.nodes:
-            node.sense_environment()
+            node.sense_environment(not_consume)
 
     def __repr__(self):
         return self._name

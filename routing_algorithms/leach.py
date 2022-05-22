@@ -11,24 +11,6 @@ from utils import euclidean_distance, Colors
 
 class Leach(RoutingAlgorithm):
     """
-        LEACH is a self-organizing, adaptive clustering protocol
-        that uses randomization to distribute the energy load evenly
-        among the sensors in the network. In LEACH, the nodes
-        organize themselves into local clusters, with one node act-
-        ing as the local base station or cluster-head. If the cluster-
-        heads were chosen a priori and fixed throughout the system
-        lifetime, as in conventional clustering algorithms, it is easy
-        to see that the unlucky sensors chosen to be cluster-heads
-        would die quickly, ending the useful lifetime of all nodes
-        belonging to those clusters
-
-        The operation of LEACH is broken up into rounds,
-        where each round begins with a set-up phase, when the clus-
-        ters are organized, followed by a steady-state phase, when
-        data transfers to the base station occur. In order to mini-
-        mize overhead, the steady-state phase is long compared to
-        the set-up phase.
-
         Based on Energy-Efficient Communication Protocol for Wireless Microsensor Networks
         paper by Wendi Rabiner Heinzelman, Anantha Chandrakasan, and Hari Balakrishnan
     """
@@ -37,8 +19,6 @@ class Leach(RoutingAlgorithm):
         """
             During setup phase cluster heads are elected and clusters are formed.
         """
-        # logging.info('LEACH: Advertisement Phase...')
-
         alive_nodes = network.get_alive_nodes()
         clusters_num = math.floor(len(alive_nodes) * cfg.P)
         if clusters_num == 0:
@@ -46,6 +26,10 @@ class Leach(RoutingAlgorithm):
             return
 
         cluster_heads = self._elect_cluster_heads(alive_nodes, round_num, clusters_num)
+        if not cluster_heads:
+            self._set_next_hop_as_bs(alive_nodes)
+            return
+
         self._form_clusters(cluster_heads, alive_nodes)
 
         return cluster_heads
@@ -59,27 +43,24 @@ class Leach(RoutingAlgorithm):
             for node in alive_nodes:
                 node.reelect_round_num = 0
 
-        color = iter(cm.rainbow(np.linspace(0, 1, clusters_num)))
+        if round_num == 0:
+            color = iter(cm.rainbow(np.linspace(0, 1, clusters_num+10)))
+
         cluster_heads = list()
 
-        # nodes_can_be_reelected = [node for node in alive_nodes if node.reelect_round_num <= round_num]
-        # if len(nodes_can_be_reelected) < clusters_num:
-        #     pass
-
-        i, j = 0, 0
-        while len(cluster_heads) != clusters_num:
-            node = alive_nodes[i]
+        j = 0
+        for node in alive_nodes:
             random_num = np.random.uniform(0, 1)
-
             if random_num < threshold and node.reelect_round_num <= round_num:
                 node.next_hop = cfg.BS_ID
-                node.color = next(color)
+
+                if round_num == 0:
+                    node.color = next(color)
+
                 node.is_head = True
                 node.reelect_round_num = round_num + reelect_round_num
                 j += 1
                 cluster_heads.append(node)
-
-            i = i + 1 if i < len(alive_nodes) - 1 else 0
 
         return cluster_heads
 
@@ -101,8 +82,6 @@ class Leach(RoutingAlgorithm):
     @staticmethod
     def transmission_phase(network, heads):
         alive_nodes = network.get_alive_nodes()
-        # nodes transmit data to cluster_heads
-        # or directly to base station if heads==0
         for node in alive_nodes:
             if node.is_head:
                 continue
@@ -111,11 +90,11 @@ class Leach(RoutingAlgorithm):
         if heads is None:
             return
 
-        # send data from cluster_heads to the BS
         for head in heads:
             head.aggregate_data()
             head.transmit_data(network.get_node_by_id(head.next_hop))
 
-    def _set_next_hop_as_bs(self, alive_nodes):
+    @staticmethod
+    def _set_next_hop_as_bs(alive_nodes):
         for node in alive_nodes:
             node.next_hop = cfg.BS_ID

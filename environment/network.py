@@ -47,6 +47,12 @@ class Network:
         for node in self.nodes:
             node.pre_round_initialization()
 
+    def restore_for_annealing(self, dissipated_energy_list):
+        i = 0
+        for node in self.nodes:
+            node.restore_for_annealing(dissipated_energy_list[i])
+            i += 1
+
     def restore_initial_state(self):
         for node in self.nodes:
             node.restore_initial_state(self.initial_node_energy)

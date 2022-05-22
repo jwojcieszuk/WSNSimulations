@@ -1,3 +1,5 @@
+import math
+
 from routing_algorithms.direct_communication import DirectCommunication
 from routing_algorithms.leach import Leach
 from routing_algorithms.leach_c import LeachC
@@ -48,31 +50,37 @@ metrics_plot_configuration = {
         'legend_location': 'upper left'
     },
 }
-
+# id of the base station
 BS_ID = -1
 
 show_plots = False
-# LEACH CONFIGURATION
-# desired number of cluster heads is 5% of nodes in the network
-P = float(0.1)
-# CLUSTERS_NUM = P * float(NODES_NUM)
-
 
 # Energy required to run circuity (both for transmitter and receiver)
 E_ELEC = 50e-9  # units in Joules/bit
-E_DA = 5e-9 # Joules
-ETx = 50e-10  # units in Joules/bit
-ERx = 50e-10  # units in Joules/bit
+E_TX = 50e-9  # units in Joules/bit
+E_RX = 50e-9  # units in Joules/bit
 # Transmit Amplifier Types %
 E_AMP = 100e-12  # units in Joules/bit/m^2 (amount of energy spent by the amplifier to transmit the bits)
 # Data Aggregation Energy
-
-k = 2000  # units in bits
+E_DA = 5e-9 # Joules
 HEADER = 200
-## Energy Configurations
-# energy dissipated at the transceiver electronic (/bit)
-# energy dissipated at the data aggregation (/bit)
 
+E_FS = 10e-12
+E_MP = 0.0013e-12
+DISTANCE_THRESHOLD = math.sqrt(E_FS/E_MP)
+
+
+# LEACH vs direct configuration
+# desired number of cluster heads is P percent of nodes in the network
+# P = float(0.05)
+# k = 2000
+# target_field_x_axis = [-25, 25]
+# target_field_y_axis = [0, 50]
+
+
+# LEACH vs LEACH-C configuration [14]
+# desired number of cluster heads is P percent of nodes in the network
+P = float(0.1)
+k = 3000
 target_field_x_axis = [0, 100]
 target_field_y_axis = [0, 100]
-

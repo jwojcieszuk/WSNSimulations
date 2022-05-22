@@ -29,34 +29,31 @@ class RoutingSimulator:
         logging.info(f'Simulating routing algorithm: {routing_algorithm.__repr__()}...')
         setattr(self, 'routing_algorithm', routing_algorithm)
         setattr(self, 'logger', simulation_logger)
-        # round_num, alive_nodes_num, avg_energy_dissipation, dead_nodes_num = list(), list(), list(), list()
+
         round_counter = 0
         # each node informs base station about its location
         self.network.notify_position()
 
         plot_environment = run_once(self.plot_environment)
         log_dead_node_once = run_once(self.log_dead_node_once)
-        # first_dead_node = 0
-        # total_energy_dissipation = 0
 
         while True:
             simulation_logger.info(f'{routing_algorithm.__repr__()} Running round: {round_counter}. '
                                    f'Nodes alive: {len(self.network.get_alive_nodes())}')
 
-            round_tuple = self._run_round(round_counter, plot_environment, log_dead_node_once)
+            self._run_round(round_counter, plot_environment, log_dead_node_once)
             self.energy_metrics.rounds_num.append(round_counter)
             self.energy_metrics.avg_energy_dissipation.append(self.network.avg_energy_dissipation())
             self.energy_metrics.alive_nodes_num.append(len(self.network.get_alive_nodes()))
             self.energy_metrics.dead_nodes_num.append(len(self.network.nodes) - len(self.network.get_alive_nodes()))
-            # round_num.append(round_counter)
-            # avg_energy_dissipation.append(self.network.avg_energy_dissipation())
-            # alive_nodes_num.append(len(self.network.get_alive_nodes()))
-            # dead_nodes_num.append(len(self.network.nodes) - len(self.network.get_alive_nodes()))
 
-            # if this variable is not None, it contains round number of first dead node
-            if round_tuple:
-                self.energy_metrics.first_dead_node = round_tuple[0]
-                self.energy_metrics.total_energy_dissipation = round_tuple[1]
+            # if round_counter == 30:
+            #     self.energy_metrics.received_packets_round_30 = self.network.base_station.received_packets
+            #     logging.info(f'{routing_algorithm.__repr__()}: Received packets in round 30: {self.energy_metrics.received_packets_round_30}')
+            # if round_counter == 500:
+            #     logging.info(f'{routing_algorithm.__repr__()}: Network is dead after {round_counter} rounds')
+            #     # simulation_logger.info(f'{routing_algorithm.__repr__()}: Network is dead after {round_counter} rounds')
+            #     break
 
             if not self.check_network_life():
                 logging.info(f'{routing_algorithm.__repr__()}: Network is dead after {round_counter} rounds')
@@ -66,19 +63,11 @@ class RoutingSimulator:
             round_counter += 1
 
         self.energy_metrics.received_packets = self.network.base_station.received_packets
+        logging.info(f'{routing_algorithm.__repr__()}: Received packets {self.energy_metrics.received_packets}')
+
         self.energy_metrics.algorithm_name = routing_algorithm.__repr__()
         self.network.restore_initial_state()
 
-        # return RoutingAlgorithmMetrics(
-        #     rounds_num=round_num,
-        #     alive_nodes_num=alive_nodes_num,
-        #     avg_energy_dissipation=avg_energy_dissipation,
-        #     received_packets=base_station_received_packets,
-        #     first_dead_node=first_dead_node,
-        #     total_energy_dissipation=total_energy_dissipation,
-        #     dead_nodes_num=dead_nodes_num,
-        #     algorithm_name=routing_algorithm.__repr__()
-        # )
         return self.energy_metrics
 
     def _run_round(self, round_counter: int, plot_environment_once, log_dead_node_once):
@@ -92,7 +81,8 @@ class RoutingSimulator:
                     self.energy_metrics.first_dead_node = round_counter
                     log_dead_node_once(round_counter)
 
-            if round_counter == 100:
+            if round_counter == 200:
+                logging.info(f'Direct communication: Total energy dissipation {self.network.total_energy_dissipation()}')
                 self.energy_metrics.total_energy_dissipation = self.network.total_energy_dissipation()
 
             self.network.reset_nodes()
@@ -112,7 +102,9 @@ class RoutingSimulator:
                     self.energy_metrics.first_dead_node = round_counter
                     log_dead_node_once(round_counter)
 
-            if round_counter == 200:
+            if round_counter == 100:
+                self.energy_metrics.total_energy_dissipation = self.network.total_energy_dissipation()
+                logging.info(f'LEACH-C: Total energy dissipation {self.network.total_energy_dissipation()}')
                 self.energy_metrics.total_energy_dissipation = self.network.total_energy_dissipation()
 
             self.network.reset_nodes()
@@ -131,11 +123,10 @@ class RoutingSimulator:
                     self.energy_metrics.first_dead_node = round_counter
                     log_dead_node_once(round_counter)
 
-            if round_counter == 200:
+            if round_counter == 100:
+                logging.info(f'LEACH: Total energy dissipation {self.network.total_energy_dissipation()}')
                 self.energy_metrics.total_energy_dissipation = self.network.total_energy_dissipation()
             self.network.reset_nodes()
-
-
 
     def check_network_life(self):
         if len(self.network.get_alive_nodes()) == 0:
