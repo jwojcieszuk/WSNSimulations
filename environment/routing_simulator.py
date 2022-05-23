@@ -18,19 +18,20 @@ class RoutingSimulator:
     """
 
     def __init__(self, num_of_nodes: int, initial_node_energy: float, simulation_logger: logging,
-                 bs_location: list[int]):
+                 bs_location: list[int], max_rounds: int = -1):
         self.network = Network(num_of_nodes, initial_node_energy, simulation_logger, bs_location[0], bs_location[1])
         self.plot_environment("Deployed network")
         self.logger = simulation_logger
         self.energy_metrics = RoutingAlgorithmMetrics()
         self.routing_algorithm = None
+        self.max_rounds = max_rounds
 
     def simulate(self, routing_algorithm: RoutingAlgorithm, simulation_logger) -> RoutingAlgorithmMetrics:
         logging.info(f'Simulating routing algorithm: {routing_algorithm.__repr__()}...')
         setattr(self, 'routing_algorithm', routing_algorithm)
         setattr(self, 'logger', simulation_logger)
 
-        round_counter = 0
+        round_counter = 1
         # each node informs base station about its location
         self.network.notify_position()
 
@@ -47,13 +48,10 @@ class RoutingSimulator:
             self.energy_metrics.alive_nodes_num.append(len(self.network.get_alive_nodes()))
             self.energy_metrics.dead_nodes_num.append(len(self.network.nodes) - len(self.network.get_alive_nodes()))
 
-            # if round_counter == 30:
-            #     self.energy_metrics.received_packets_round_30 = self.network.base_station.received_packets
-            #     logging.info(f'{routing_algorithm.__repr__()}: Received packets in round 30: {self.energy_metrics.received_packets_round_30}')
-            # if round_counter == 500:
-            #     logging.info(f'{routing_algorithm.__repr__()}: Network is dead after {round_counter} rounds')
-            #     # simulation_logger.info(f'{routing_algorithm.__repr__()}: Network is dead after {round_counter} rounds')
-            #     break
+            if round_counter == self.max_rounds:
+                logging.info(f'{routing_algorithm.__repr__()}: Max rounds reached {round_counter}.')
+                simulation_logger.info(f'{routing_algorithm.__repr__()}: Max rounds reached {round_counter}.')
+                break
 
             if not self.check_network_life():
                 logging.info(f'{routing_algorithm.__repr__()}: Network is dead after {round_counter} rounds')

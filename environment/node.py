@@ -15,7 +15,7 @@ class Node:
         self.pos_x = np.random.uniform(cfg.target_field_x_axis[0], cfg.target_field_x_axis[1])
         self.pos_y = np.random.uniform(cfg.target_field_y_axis[0], cfg.target_field_y_axis[1])
         self.energy_source = Battery(self, energy)
-        self.next_hop = 0
+        self.next_hop = None
         self.contains_data = False
         self.alive = True
         self.color = None

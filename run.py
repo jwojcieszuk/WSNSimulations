@@ -53,6 +53,11 @@ def run_scenario(scenario: dict[str], scenario_name: str):
     if not validate_scenario(scenario):
         raise NotImplementedError
 
+    setattr(cfg, 'k', scenario["bits_per_message"])
+    setattr(cfg, 'target_field_x_axis', scenario["x_axis_bounds"])
+    setattr(cfg, 'target_field_y_axis', scenario["y_axis_bounds"])
+    setattr(cfg, 'P', scenario["desired_clusters_percentage"]/100)
+
     logging.info(f'Starting simulation for scenario: {scenario_name}')
     # create directories for logs and results
     Path("./logs").mkdir(parents=True, exist_ok=True)
@@ -64,9 +69,9 @@ def run_scenario(scenario: dict[str], scenario_name: str):
         num_of_nodes=scenario['num_of_nodes'],
         initial_node_energy=scenario['initial_node_energy'],
         simulation_logger=simulation_logger,
-        bs_location=scenario['base_station_location']
+        bs_location=scenario['base_station_location'],
+        max_rounds=scenario["max_rounds"] if "max_rounds" in scenario else None
     )
-
 
     for algorithm in scenario['algorithms']:
         if algorithm in cfg.supported_algorithms:
@@ -133,28 +138,74 @@ def run_scenario(scenario: dict[str], scenario_name: str):
                 plt.show()
             plt.clf()
 
+    return simulation_metrics
+
 
 def validate_scenario(scenario: dict[str]) -> bool:
+    if "num_of_nodes" not in scenario:
+        logging.error("num_of_nodes parameter not given in the scenario.")
+        return False
+
+    if "initial_node_energy" not in scenario:
+        logging.error("initial_node_energy parameter not given in the scenario.")
+        return False
+
     for algorithm in scenario['algorithms']:
         if algorithm not in cfg.supported_algorithms:
             logging.error("Routing algorithm defined in scenario is not supported.")
             return False
+
+    if len(scenario["algorithms"]) == 0:
+        logging.error("empty algorithms parameter in the scenario.")
+        return False
 
     for metric in scenario['metrics']:
         if metric not in cfg.supported_metrics:
             logging.error("Metric defined in scenario is not supported.")
             return False
 
+    if len(scenario["metrics"]) == 0:
+        logging.error("empty metrics parameter in the scenario.")
+        return False
+
     if scenario["num_of_nodes"] > 1000 or scenario["num_of_nodes"] <= 0:
         logging.error("Invalid num_of_nodes number.")
         return False
 
-    if scenario["initial_node_energy"] > 10 or scenario["initial_node_energy"] < 0:
+    if scenario["initial_node_energy"] > 5 or scenario["initial_node_energy"] < 0.1:
         logging.error("Invalid initial_node_energy number.")
         return False
 
     if "base_station_location" not in scenario:
-        logging.error("Base station location not given in scenario.")
+        logging.error("base_station_location parameter not given in the scenario.")
+        return False
+
+    if "bits_per_message" not in scenario:
+        logging.error("bits_per_message parameter not given in the scenario.")
+        return False
+
+    if scenario["bits_per_message"] < 100 or scenario["bits_per_message"] > 10000:
+        logging.error("invalid value for bits_per_message parameter.")
+        return False
+
+    if "x_axis_bounds" not in scenario:
+        logging.error("x_axis_bounds parameter not given in the scenario.")
+        return False
+
+    if "y_axis_bounds" not in scenario:
+        logging.error("y_axis_bounds parameter not given in the scenario.")
+        return False
+
+    if ("Leach" or "LeachC" in scenario["algorithms"]) and "desired_clusters_percentage" not in scenario:
+        logging.error("desired_clusters_percentage parameter must be provided in the scenario.")
+        return False
+
+    if scenario["desired_clusters_percentage"] < 1 or scenario["desired_clusters_percentage"] > 90:
+        logging.error("invalid value for desired_clusters_percentage parameter.")
+        return False
+
+    if "max_rounds" in scenario and scenario["max_rounds"] < 1:
+        logging.error("invalid value for max_rounds parameter.")
         return False
 
     return True

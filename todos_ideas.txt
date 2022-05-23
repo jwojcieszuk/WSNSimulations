@@ -1,16 +1,6 @@
-Q:
- - opis wynikow w jednym rozdziale na koncu?
- - czy pod kazdym wykresem?
- - opisywac ograniczenia symulatora? czyli np liczba node'ow max do 500, zadziala dla wiekszej ilosci ale bedzie juz dlugo sie wykonywal program i nieczytelny wykres
-
-TODO GENERAL:
- - unit testy - walidacja json'a zrobiona, dorobic testy funkcjonalne
-
 ** wspomniec o agregacji aggregate_data
 
 
-we wstepie tekst o tym ze symulator jest napisany w pythonie
-gdzie napisac dlaczego zdecydowalem sie na napisanie symulatora od zera zamiast uzycia istniejacych symulatorow
 co opisac w teorii?
 wielkosc obszaru moze byc zmieniana, ale wplywa to na dlugosc direct communication bo za bliska odleglosc
 
@@ -19,7 +9,16 @@ Note that 0 cluster-heads and 100% cluster-
 heads is the same as direct communication
 
 
-leach vs leach_c - pok
-
 [14] - brak informacji o wartosci cfg.k
+
+
+WORKDONE (23.05):
+    - zaktualizowany scenariusz, nowe pola, walidacje
+    - poprawione testy scenariusza
+    -
+
+TODO (23.05):
+    - background - dokladne opisy LEACH i LEACH-C
+    - implementation - opis implementacji algorytmow, listingi najwazniejszych elementow, dokladniejszy opis testow
+    - kod - testy, simulated_annealing_algorithm (sprawdzic czy zuzywa energie, a nie powinien)
 

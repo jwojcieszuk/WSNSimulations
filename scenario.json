@@ -1,10 +1,13 @@
 {
-  "leach_leach-c_100_nodes": {
-      "algorithms": ["LeachC", "Leach"],
-      "metrics": ["avg_energy_dissipation","total_energy_dissipation", "alive_nodes_num",
-                  "received_packets", "first_dead_node"],
-      "num_of_nodes": 50,
-      "initial_node_energy": 0.2,
-      "base_station_location": [50, 50]
-  }
-}
+            "test": {
+              "num_of_nodes": 100,
+              "x_axis_bounds": [0, 100],
+              "y_axis_bounds": [0, 100],
+              "base_station_location": [50, 50],
+              "algorithms": ["LeachC", "Leach"],
+              "metrics": ["received_packets"],
+              "initial_node_energy": 0.2,
+              "bits_per_message": 3000,
+              "desired_clusters_percentage": 10
+            }
+        }

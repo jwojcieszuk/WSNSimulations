@@ -9,7 +9,7 @@ from numpy.random import rand
 
 from routing_algorithms.routing_algorithm import RoutingAlgorithm
 import configuration as cfg
-from utils import euclidean_distance, Colors
+from utils import euclidean_distance
 
 
 class LeachC(RoutingAlgorithm):
@@ -25,7 +25,7 @@ class LeachC(RoutingAlgorithm):
             self._set_next_hop_as_bs(alive_nodes)
             return
 
-        cluster_heads = self._simulated_annealing_algorithm(network, avg_energy, clusters_num)
+        cluster_heads = self.simulated_annealing_algorithm(network, avg_energy, clusters_num)
         if cluster_heads == 0:
             self._set_next_hop_as_bs(alive_nodes)
             return
@@ -110,7 +110,7 @@ class LeachC(RoutingAlgorithm):
         for node in alive_nodes:
             node.next_hop = cfg.BS_ID
 
-    def _simulated_annealing_algorithm(self, network, avg_energy, clusters_num):
+    def simulated_annealing_algorithm(self, network, avg_energy, clusters_num):
         """
             Implementation based on: https://machinelearningmastery.com/simulated-annealing-from-scratch-in-python/
         """
@@ -125,8 +125,9 @@ class LeachC(RoutingAlgorithm):
         best_heads = self._elect_cluster_heads(alive_nodes, avg_energy, clusters_num)
         if len(best_heads) == 0:
             return list()
+        self._form_clusters(best_heads, copied_network.get_alive_nodes())
+
         best_energy_usage = self.calculate_energy_usage(copied_network, best_heads)
-        print(f'Initial best energy usage={best_energy_usage}')
 
         temp = 10
         cooling_rate = 0.03
@@ -161,7 +162,6 @@ class LeachC(RoutingAlgorithm):
 
             temp *= 1 - cooling_rate
 
-        print(f'Best energy usage={best_energy_usage}')
         return best_heads
 
     def calculate_energy_usage(self, network, heads):
