@@ -63,13 +63,16 @@ class LeachC(RoutingAlgorithm):
         if len(eligible_nodes) == 0:
             return list()
 
+        if len(eligible_nodes) < clusters_num:
+            clusters_num = len(eligible_nodes)
+
         while len(cluster_heads) != clusters_num:
             node = random.choice(eligible_nodes)
-            eligible_nodes.remove(node)
-            node.next_hop = cfg.BS_ID
-            node.is_head = True
-            j += 1
-            cluster_heads.append(node)
+
+            if node not in cluster_heads:
+                node.next_hop = cfg.BS_ID
+                node.is_head = True
+                cluster_heads.append(node)
 
         return cluster_heads
 
@@ -129,15 +132,13 @@ class LeachC(RoutingAlgorithm):
 
         best_energy_usage = self.calculate_energy_usage(copied_network, best_heads)
 
-        temp = 10
+        temp = 100
         cooling_rate = 0.03
         round_number = 0
 
         curr_heads, curr_energy_usage = best_heads, best_energy_usage
         while temp > 1:
             copied_network.restore_for_annealing(dissipated_energy_list)
-
-            round_number += 1
 
             candidate_heads = self._elect_cluster_heads(copied_network.get_alive_nodes(), avg_energy, clusters_num)
             if len(candidate_heads) == 0:
@@ -149,18 +150,14 @@ class LeachC(RoutingAlgorithm):
             if candidate_energy_usage < best_energy_usage:
                 best_heads, best_energy_usage = candidate_heads, candidate_energy_usage
 
-            diff = candidate_energy_usage - curr_energy_usage
+            # # metropolis acceptance criterion
+            metropolis = np.exp(-(candidate_energy_usage-curr_energy_usage) / temp)
 
-            # temperature for current epoch
-            t = temp / float(round_number)
-
-            # metropolis acceptance criterion
-            metropolis = np.exp(-diff / t)
-
-            if diff < 0 or rand() < metropolis:
+            if rand() < metropolis:
                 curr_heads, curr_energy_usage = candidate_heads, candidate_energy_usage
 
             temp *= 1 - cooling_rate
+            round_number += 1
 
         return best_heads
 
@@ -168,3 +165,30 @@ class LeachC(RoutingAlgorithm):
         self.sensing_phase(network, True)
         self.transmission_phase(network, heads, True)
         return network.total_energy_dissipation()
+
+    # def _modify_cluster_heads(self, prev_heads, alive_nodes, avg_energy):
+    #     eligible_nodes = [node for node in alive_nodes if node.energy_source.energy >= avg_energy]
+    #
+    #     while True:
+    #         new_head = random.choice(eligible_nodes)
+    #         if new_head not in prev_heads:
+    #             # find the nearest cluster head and replace it with new one
+    #             nearest_head = prev_heads[0]
+    #             for head in prev_heads:
+    #                 if euclidean_distance(new_head, head) < euclidean_distance(new_head, nearest_head):
+    #                     nearest_head = head
+    #             # change all nodes that belong to the nearest head to point to the new one
+    #             for node in alive_nodes:
+    #                 if node.next_hop == nearest_head.node_id:
+    #                     node.next_hop = new_head.node_id
+    #             # nearest head is now normal sensor node
+    #             nearest_head.next_hop = new_head.node_id
+    #             nearest_head.is_head = False
+    #             prev_heads.remove(nearest_head)
+    #
+    #             new_head.next_hop = cfg.BS_ID
+    #             new_head.is_head = True
+    #             prev_heads.append(new_head)
+    #             break
+    #
+    #     return prev_heads

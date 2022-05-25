@@ -15,10 +15,11 @@ heads is the same as direct communication
 WORKDONE (23.05):
     - zaktualizowany scenariusz, nowe pola, walidacje
     - poprawione testy scenariusza
-    -
 
 TODO (23.05):
     - background - dokladne opisy LEACH i LEACH-C
     - implementation - opis implementacji algorytmow, listingi najwazniejszych elementow, dokladniejszy opis testow
     - kod - testy, simulated_annealing_algorithm (sprawdzic czy zuzywa energie, a nie powinien)
+
+debug formowania klastrow leach-c
 

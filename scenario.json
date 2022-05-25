@@ -5,7 +5,7 @@
               "y_axis_bounds": [0, 100],
               "base_station_location": [50, 50],
               "algorithms": ["LeachC", "Leach"],
-              "metrics": ["received_packets"],
+              "metrics": ["alive_nodes_num", "avg_energy_dissipation"],
               "initial_node_energy": 0.2,
               "bits_per_message": 3000,
               "desired_clusters_percentage": 10

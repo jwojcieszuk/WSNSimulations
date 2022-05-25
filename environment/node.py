@@ -105,7 +105,8 @@ class Node:
                + " Next hop: " + str(self.next_hop)\
                + " contains data: " + str(self.contains_data)\
                + " energy: " + str(self.energy_source.energy)\
-               + " is head: " + str(self.is_head)
+               + " is head: " + str(self.is_head)\
+               + "\n"
 
     def pre_round_initialization(self):
         self.next_hop = 0
@@ -117,7 +118,7 @@ class Node:
 
     def restore_initial_state(self, initial_node_energy):
         self.energy_source = Battery(self, initial_node_energy)
-        self.next_hop = 0
+        self.next_hop = None
         self.contains_data = False
         self.alive = True
         self.color = None
@@ -139,11 +140,11 @@ class Node:
     #         self.transmit_data(node, 1)
 
     def restore_for_annealing(self, energy):
-        self.next_hop = 0
-        self.contains_data = False
-        self.color = None
-        self.is_head = False
-        self.sensed_data = 0
+        # self.next_hop = 0
+        # self.contains_data = False
+        # self.color = None
+        # self.is_head = False
+        # self.sensed_data = 0
         self.dissipated_energy = energy
 
 class BaseStation:
