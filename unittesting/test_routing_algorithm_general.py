@@ -19,9 +19,12 @@ class TestRoutingAlgorithmGeneral(unittest.TestCase):
                 "x_axis_bounds": [0, 50],
                 "y_axis_bounds": [0, 50],
                 "desired_clusters_percentage": 10,
-                "max_rounds": 5
+                "max_rounds": 5,
+                "radio_propagation_model": "free_space"
             }
         }
+        setattr(cfg, 'target_field_x_axis', [0, 100])
+        setattr(cfg, 'target_field_y_axis', [0, 100])
 
     def test_number_of_received_packets(self):
         """
@@ -40,7 +43,6 @@ class TestRoutingAlgorithmGeneral(unittest.TestCase):
         """
             Test if after one algorithm from the scenario has finished running, if the network is initial state,
             before running next algorithm
-            - same nodes coordinates
         """
         simulation_logger = setup_logger(f'test_network_reset_logger', f'./logs/scenario-test_network_reset.log')
         env = RoutingSimulator(

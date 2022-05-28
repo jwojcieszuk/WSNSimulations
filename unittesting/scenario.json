@@ -1,8 +1,8 @@
 {
   "leach_vs_leachC": {
     "num_of_nodes": 100,
-    "x_axis_bounds": [0, 25],
-    "y_axis_bounds": [0, 50],
+    "x_axis_bounds": [0, 100],
+    "y_axis_bounds": [0, 100],
     "base_station_location": [0, -100],
     "algorithms": ["DirectCommunication", "Leach"],
     "metrics": ["alive_nodes_num", "avg_energy_dissipation", "first_dead_node", "total_energy_dissipation",

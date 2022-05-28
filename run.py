@@ -53,10 +53,8 @@ def run_scenario(scenario: dict[str], scenario_name: str):
     if not validate_scenario(scenario):
         raise NotImplementedError
 
-    setattr(cfg, 'k', scenario["bits_per_message"])
     setattr(cfg, 'target_field_x_axis', scenario["x_axis_bounds"])
     setattr(cfg, 'target_field_y_axis', scenario["y_axis_bounds"])
-    setattr(cfg, 'P', scenario["desired_clusters_percentage"]/100)
 
     logging.info(f'Starting simulation for scenario: {scenario_name}')
     # create directories for logs and results
@@ -85,8 +83,12 @@ def run_scenario(scenario: dict[str], scenario_name: str):
         if scenario_metric == 'received_packets':
             algorithm_names = [metric.algorithm_name for metric in simulation_metrics]
             received_packets = [metric.received_packets for metric in simulation_metrics]
+            y_bottom_lim = min(received_packets)-0.05*min(received_packets)
+            y_upper_lim = max(received_packets)+0.05*max(received_packets)
+            plt.ylim(y_bottom_lim, y_upper_lim)
             plt.bar(algorithm_names, received_packets)
             plt.title(cfg.metrics_plot_configuration[scenario_metric]['title'])
+
             plt.ylabel(cfg.metrics_plot_configuration[scenario_metric]['label'])
             plt.savefig(f'./results/received_packets.png', dpi=400)
             if cfg.show_plots:
@@ -97,6 +99,9 @@ def run_scenario(scenario: dict[str], scenario_name: str):
         if scenario_metric == 'first_dead_node':
             algorithm_names = [metric.algorithm_name for metric in simulation_metrics]
             first_dead_node = [metric.first_dead_node for metric in simulation_metrics]
+            y_bottom_lim = min(first_dead_node)-0.05*min(first_dead_node)
+            y_upper_lim = max(first_dead_node)+0.05*max(first_dead_node)
+            plt.ylim(y_bottom_lim, y_upper_lim)
             plt.bar(algorithm_names, first_dead_node)
             plt.title(cfg.metrics_plot_configuration[scenario_metric]['title'])
             plt.ylabel(cfg.metrics_plot_configuration[scenario_metric]['label'])
@@ -108,7 +113,10 @@ def run_scenario(scenario: dict[str], scenario_name: str):
 
         if scenario_metric == 'total_energy_dissipation':
             algorithm_names = [metric.algorithm_name for metric in simulation_metrics]
-            total_energy_dissipation = [metric.total_energy_dissipation for metric in simulation_metrics]
+            total_energy_dissipation = [metric.total_energy_dissipation_200 for metric in simulation_metrics]
+            y_bottom_lim = min(total_energy_dissipation) - 0.05*min(total_energy_dissipation)
+            y_upper_lim = max(total_energy_dissipation) + 0.05*max(total_energy_dissipation)
+            plt.ylim(y_bottom_lim, y_upper_lim)
             plt.bar(algorithm_names, total_energy_dissipation)
             plt.title(cfg.metrics_plot_configuration[scenario_metric]['title'])
             plt.ylabel(cfg.metrics_plot_configuration[scenario_metric]['label'])
@@ -143,69 +151,77 @@ def run_scenario(scenario: dict[str], scenario_name: str):
 
 def validate_scenario(scenario: dict[str]) -> bool:
     if "num_of_nodes" not in scenario:
-        logging.error("num_of_nodes parameter not given in the scenario.")
+        logging.error("num_of_nodes parameter not given in the scenario")
         return False
 
     if "initial_node_energy" not in scenario:
-        logging.error("initial_node_energy parameter not given in the scenario.")
+        logging.error("initial_node_energy parameter not given in the scenario")
         return False
 
     for algorithm in scenario['algorithms']:
         if algorithm not in cfg.supported_algorithms:
-            logging.error("Routing algorithm defined in scenario is not supported.")
+            logging.error("Routing algorithm defined in scenario is not supported")
             return False
 
     if len(scenario["algorithms"]) == 0:
-        logging.error("empty algorithms parameter in the scenario.")
+        logging.error("empty algorithms parameter in the scenario")
         return False
 
     for metric in scenario['metrics']:
         if metric not in cfg.supported_metrics:
-            logging.error("Metric defined in scenario is not supported.")
+            logging.error("Metric defined in scenario is not supported")
             return False
 
     if len(scenario["metrics"]) == 0:
-        logging.error("empty metrics parameter in the scenario.")
+        logging.error("empty metrics parameter in the scenario")
         return False
 
     if scenario["num_of_nodes"] > 1000 or scenario["num_of_nodes"] <= 0:
-        logging.error("Invalid num_of_nodes number.")
+        logging.error("Invalid num_of_nodes number")
         return False
 
     if scenario["initial_node_energy"] > 5 or scenario["initial_node_energy"] < 0.1:
-        logging.error("Invalid initial_node_energy number.")
+        logging.error("Invalid initial_node_energy number")
         return False
 
     if "base_station_location" not in scenario:
-        logging.error("base_station_location parameter not given in the scenario.")
+        logging.error("base_station_location parameter not given in the scenario")
         return False
 
     if "bits_per_message" not in scenario:
-        logging.error("bits_per_message parameter not given in the scenario.")
+        logging.error("bits_per_message parameter not given in the scenario")
         return False
 
     if scenario["bits_per_message"] < 100 or scenario["bits_per_message"] > 10000:
-        logging.error("invalid value for bits_per_message parameter.")
+        logging.error("invalid value for bits_per_message parameter")
         return False
 
     if "x_axis_bounds" not in scenario:
-        logging.error("x_axis_bounds parameter not given in the scenario.")
+        logging.error("x_axis_bounds parameter not given in the scenario")
         return False
 
     if "y_axis_bounds" not in scenario:
-        logging.error("y_axis_bounds parameter not given in the scenario.")
+        logging.error("y_axis_bounds parameter not given in the scenario")
         return False
 
     if ("Leach" or "LeachC" in scenario["algorithms"]) and "desired_clusters_percentage" not in scenario:
-        logging.error("desired_clusters_percentage parameter must be provided in the scenario.")
+        logging.error("desired_clusters_percentage parameter must be provided in the scenario")
         return False
 
     if scenario["desired_clusters_percentage"] < 1 or scenario["desired_clusters_percentage"] > 90:
-        logging.error("invalid value for desired_clusters_percentage parameter.")
+        logging.error("invalid value for desired_clusters_percentage parameter")
         return False
 
     if "max_rounds" in scenario and scenario["max_rounds"] < 1:
-        logging.error("invalid value for max_rounds parameter.")
+        logging.error("invalid value for max_rounds parameter")
+        return False
+
+    if "radio_propagation_model" not in scenario:
+        logging.error("radio_propagation_model parameter not given in the scenario")
+        return False
+
+    if scenario["radio_propagation_model"] not in cfg.supported_radio_propagation_models:
+        logging.error("radio propagation model defined in scenario is not supported.")
         return False
 
     return True

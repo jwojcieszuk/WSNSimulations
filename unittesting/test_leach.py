@@ -14,6 +14,8 @@ class TestLeach(unittest.TestCase):
         self.initial_node_energy = 0.5
         desired_clusters_num = 5
         setattr(cfg, 'P', desired_clusters_num / 100)
+        setattr(cfg, 'target_field_x_axis', [0, 100])
+        setattr(cfg, 'target_field_y_axis', [0, 100])
 
         self.network = Network(
             num_of_nodes=100,

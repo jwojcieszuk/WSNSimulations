@@ -15,6 +15,8 @@ class TestLeachC(unittest.TestCase):
         self.desired_clusters_num = 5
         self.initial_node_energy = 0.2
         setattr(cfg, 'P', self.desired_clusters_num / 100)
+        setattr(cfg, 'target_field_x_axis', [0, 100])
+        setattr(cfg, 'target_field_y_axis', [0, 100])
 
         self.network = Network(
             num_of_nodes=100,
@@ -26,20 +28,10 @@ class TestLeachC(unittest.TestCase):
 
     def test_setup_phase(self):
         """
-            Setup phase should not increase total energy dissipation.
             Also, it should create as many clusters as required by "desired_clusters_percentage".
             Finally, each node should have destination node assigned
         """
-        avg_energy = self.network.base_station.calculate_avg_energy(self.network.get_alive_nodes(), self.network.base_station)
-
-        old_energy_dissipation = self.network.total_energy_dissipation()
-
-        heads = self.leachc.setup_phase(self.network, 0, avg_energy)
-
-        new_energy_dissipation = self.network.total_energy_dissipation()
-
-        # verify if energy dissipation increases after setup phase
-        self.assertEqual(old_energy_dissipation, new_energy_dissipation)
+        heads = self.leachc.setup_phase(self.network, 0)
 
         # verify if setup phase creates desired clusters num
         self.assertEqual(len(heads), self.desired_clusters_num)
@@ -74,11 +66,7 @@ class TestLeachC(unittest.TestCase):
         """
             Base station after transmission phase in first round should receive 100 packets.
         """
-        avg_energy = self.network.base_station.calculate_avg_energy(
-            self.network.get_alive_nodes(),
-            self.network.base_station
-        )
-        heads = self.leachc.setup_phase(self.network, 0, avg_energy)
+        heads = self.leachc.setup_phase(self.network, 0)
         self.leachc.sensing_phase(self.network)
         self.leachc.transmission_phase(self.network, heads)
 
@@ -90,8 +78,6 @@ class TestLeachC(unittest.TestCase):
             Comparison is done by forming clusters randomly and calculating energy dissipation,
             and by forming clusters with the use of simulated annealing algorithm.
         """
-        avg_energy = self.network.base_station.calculate_avg_energy(self.network.get_alive_nodes(), self.network.base_station)
-
         alive_nodes = self.network.get_alive_nodes()
 
         clusters_num = math.floor(len(alive_nodes) * cfg.P)
@@ -104,12 +90,14 @@ class TestLeachC(unittest.TestCase):
         sum_energy_simulated_annealing_approach = 0
         for i in range(30):
             self.network.restore_for_annealing(dissipated_energy_list)
-            heads = self.leachc.setup_phase(self.network, 0, avg_energy)
+            heads = self.leachc.setup_phase(self.network, 0)
             self.leachc.sensing_phase(self.network, not_consume=True)
             self.leachc.transmission_phase(self.network, heads, not_consume=True)
             sum_energy_simulated_annealing_approach += self.network.total_energy_dissipation()
 
             self.network.restore_for_annealing(dissipated_energy_list)
+            avg_energy = self.network.base_station.calculate_avg_energy(self.network.get_alive_nodes(),
+                                                                        self.network.base_station)
             heads = self.leachc._elect_cluster_heads(self.network.get_alive_nodes(), avg_energy, clusters_num)
             self.leachc._form_clusters(heads, alive_nodes)
             self.leachc.sensing_phase(self.network, not_consume=True)

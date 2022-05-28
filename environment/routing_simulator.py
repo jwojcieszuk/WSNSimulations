@@ -9,6 +9,7 @@ from routing_algorithms.direct_communication import DirectCommunication
 from routing_algorithms.leach import Leach
 from routing_algorithms.leach_c import LeachC
 from metrics import RoutingAlgorithmMetrics
+import numpy as np
 import configuration as cfg
 
 
@@ -60,7 +61,14 @@ class RoutingSimulator:
 
             round_counter += 1
 
+        # self.logger.info(f'{routing_algorithm.__repr__()}: Total energy dissipation '
+        #                  f'{self.network.total_energy_dissipation()}')
+        # logging.info(f'{routing_algorithm.__repr__()}: Total energy dissipation '
+        #              f'{self.network.total_energy_dissipation()}')
+
+        # self.energy_metrics.total_energy_dissipation_200 = self.network.total_energy_dissipation()
         self.energy_metrics.received_packets = self.network.base_station.received_packets
+        self.logger.info(f'{routing_algorithm.__repr__()}: Received packets {self.energy_metrics.received_packets}')
         logging.info(f'{routing_algorithm.__repr__()}: Received packets {self.energy_metrics.received_packets}')
 
         self.energy_metrics.algorithm_name = routing_algorithm.__repr__()
@@ -74,38 +82,14 @@ class RoutingSimulator:
             self.routing_algorithm.sensing_phase(self.network)
             self.routing_algorithm.transmission_phase(self.network)
 
-            if len(self.network.get_alive_nodes()) < len(self.network.nodes):
-                if log_dead_node_once.has_run is False:
-                    self.energy_metrics.first_dead_node = round_counter
-                    log_dead_node_once(round_counter)
-
-            if round_counter == 200:
-                logging.info(f'Direct communication: Total energy dissipation {self.network.total_energy_dissipation()}')
-                self.energy_metrics.total_energy_dissipation = self.network.total_energy_dissipation()
-
-            self.network.reset_nodes()
-
         elif isinstance(self.routing_algorithm, LeachC):
-            avg_energy = self.network.base_station.calculate_avg_energy(self.network.get_alive_nodes(), self.network.base_station)
-            heads = self.routing_algorithm.setup_phase(self.network, round_counter, avg_energy)
+            heads = self.routing_algorithm.setup_phase(self.network, round_counter)
 
             if plot_environment_once.has_run is False:
                 plot_environment_once("Deployed network divided by clusters in first round  - LeachC")
 
             self.routing_algorithm.sensing_phase(self.network)
             self.routing_algorithm.transmission_phase(self.network, heads)
-
-            if len(self.network.get_alive_nodes()) < len(self.network.nodes):
-                if log_dead_node_once.has_run is False:
-                    self.energy_metrics.first_dead_node = round_counter
-                    log_dead_node_once(round_counter)
-
-            if round_counter == 100:
-                self.energy_metrics.total_energy_dissipation = self.network.total_energy_dissipation()
-                logging.info(f'LEACH-C: Total energy dissipation {self.network.total_energy_dissipation()}')
-                self.energy_metrics.total_energy_dissipation = self.network.total_energy_dissipation()
-
-            self.network.reset_nodes()
 
         elif isinstance(self.routing_algorithm, Leach):
             heads = self.routing_algorithm.setup_phase(self.network, round_counter)
@@ -116,15 +100,18 @@ class RoutingSimulator:
             self.routing_algorithm.sensing_phase(self.network)
             self.routing_algorithm.transmission_phase(self.network, heads)
 
-            if len(self.network.get_alive_nodes()) < len(self.network.nodes):
-                if log_dead_node_once.has_run is False:
-                    self.energy_metrics.first_dead_node = round_counter
-                    log_dead_node_once(round_counter)
+        if len(self.network.get_alive_nodes()) < len(self.network.nodes):
+            if log_dead_node_once.has_run is False:
+                self.energy_metrics.first_dead_node = round_counter
+                log_dead_node_once(round_counter)
 
-            if round_counter == 100:
-                logging.info(f'LEACH: Total energy dissipation {self.network.total_energy_dissipation()}')
-                self.energy_metrics.total_energy_dissipation = self.network.total_energy_dissipation()
-            self.network.reset_nodes()
+        if round_counter == 200:
+            energy = self.network.total_energy_dissipation()
+            self.logger.info(f'{self.routing_algorithm.__repr__()} Total energy dissipation up to round 200 = {energy}')
+            logging.info(f'{self.routing_algorithm.__repr__()}: Total energy dissipation up to round 200 = {energy}')
+            self.energy_metrics.total_energy_dissipation_200 = energy
+
+        self.network.reset_nodes()
 
     def check_network_life(self):
         if len(self.network.get_alive_nodes()) == 0:

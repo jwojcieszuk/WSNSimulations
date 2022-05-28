@@ -63,16 +63,14 @@ class Node:
     def calculate_transmit_energy_cost(self, destination_node, bits):
         distance = euclidean_distance(self, destination_node)
 
-        # LEACH vs DIRECT
-        # energy = cfg.E_ELEC * bits + cfg.E_AMP * bits * distance ** 2
-
-        # LEACH vs LEACH-C
-        if distance < cfg.DISTANCE_THRESHOLD:
-            e_amp = cfg.E_FS * distance ** 2
+        if cfg.radio_propagation_model == "free_space_and_multipath":
+            if distance <= cfg.DISTANCE_THRESHOLD:
+                e_amp = cfg.E_FS * distance ** 2
+            else:
+                e_amp = cfg.E_MP * distance ** 4
+            energy = bits * cfg.E_TX + bits * e_amp
         else:
-            e_amp = cfg.E_MP * distance ** 4
-
-        energy = bits * cfg.E_TX + bits * e_amp
+            energy = cfg.E_ELEC * bits + cfg.E_AMP * bits * distance ** 2
 
         if self.energy_source.energy < energy:
             self.battery_dead()
@@ -146,6 +144,7 @@ class Node:
         # self.is_head = False
         # self.sensed_data = 0
         self.dissipated_energy = energy
+
 
 class BaseStation:
     def __init__(self, pos_x, pos_y):

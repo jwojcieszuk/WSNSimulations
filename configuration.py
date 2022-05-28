@@ -1,3 +1,4 @@
+import json
 import math
 
 from routing_algorithms.direct_communication import DirectCommunication
@@ -12,12 +13,14 @@ supported_algorithms = {
 
 supported_metrics = ['alive_nodes_num', 'avg_energy_dissipation', 'received_packets', 'first_dead_node',
                      'total_energy_dissipation', 'dead_nodes_num']
+
+supported_radio_propagation_models = ['free_space', 'free_space_and_multipath']
 metrics_plot_configuration = {
     'alive_nodes_num': {
         'plot_type': 'plot',
         'label': 'Number of alive nodes',
         'title': 'Number of alive nodes compared with round numbers',
-        'legend_location': 'upper right'
+        'legend_location': 'lower left'
     },
     'avg_energy_dissipation': {
         'plot_type': 'plot',
@@ -69,18 +72,25 @@ E_FS = 10e-12
 E_MP = 0.0013e-12
 DISTANCE_THRESHOLD = math.sqrt(E_FS/E_MP)
 
+k = 0
+P = 0
+radio_propagation_model = ""
 
-# LEACH vs direct configuration
-# desired number of cluster heads is P percent of nodes in the network
-# P = float(0.05)
-# k = 2000
-# target_field_x_axis = [-25, 25]
-# target_field_y_axis = [0, 50]
+with open('scenario.json', 'r') as scenario_file:
+    data = json.load(scenario_file)
+
+    for scenario_name in data.keys():
+        scenario = data[scenario_name]
+
+    k = scenario["bits_per_message"]
+    globals()['k'] = k
+    p = scenario["desired_clusters_percentage"]/100
+    globals()['P'] = p
+    globals()['radio_propagation_model'] = data[scenario_name]["radio_propagation_model"]
+
+target_field_x_axis: list[int] = []
+target_field_y_axis: list[int] = []
 
 
-# LEACH vs LEACH-C configuration [14]
-# desired number of cluster heads is P percent of nodes in the network
-P = float(0.1)
-k = 3000
-target_field_x_axis = [0, 100]
-target_field_y_axis = [0, 100]
+
+

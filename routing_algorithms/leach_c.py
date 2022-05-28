@@ -13,12 +13,12 @@ from utils import euclidean_distance
 
 
 class LeachC(RoutingAlgorithm):
-    def setup_phase(self, network, round_num=None, avg_energy=0):
+    def setup_phase(self, network, round_num=None):
         """
             During setup phase cluster heads are elected and clusters are formed.
         """
-        # logging.info('LEACH: Advertisement Phase...')
-
+        avg_energy = network.base_station.calculate_avg_energy(network.get_alive_nodes(),
+                                                               network.base_station)
         alive_nodes = network.get_alive_nodes()
         clusters_num = math.floor(len(alive_nodes) * cfg.P)
         if clusters_num == 0:
@@ -132,7 +132,7 @@ class LeachC(RoutingAlgorithm):
 
         best_energy_usage = self.calculate_energy_usage(copied_network, best_heads)
 
-        temp = 100
+        temp = 1000
         cooling_rate = 0.03
         round_number = 0
 
