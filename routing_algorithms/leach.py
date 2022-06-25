@@ -25,7 +25,7 @@ class Leach(RoutingAlgorithm):
             self._set_next_hop_as_bs(alive_nodes)
             return
 
-        cluster_heads = self._elect_cluster_heads(alive_nodes, round_num, clusters_num)
+        cluster_heads = self._elect_cluster_heads(alive_nodes, round_num)
         if not cluster_heads:
             self._set_next_hop_as_bs(alive_nodes)
             return
@@ -35,7 +35,7 @@ class Leach(RoutingAlgorithm):
         return cluster_heads
 
     @staticmethod
-    def _elect_cluster_heads(alive_nodes, round_num, clusters_num):
+    def _elect_cluster_heads(alive_nodes, round_num):
         threshold = cfg.P / (1 - cfg.P * (math.fmod(round_num, 1 / cfg.P)))
         reelect_round_num = 1/cfg.P
 
@@ -43,8 +43,8 @@ class Leach(RoutingAlgorithm):
             for node in alive_nodes:
                 node.reelect_round_num = 0
 
-        if round_num == 0:
-            color = iter(cm.rainbow(np.linspace(0, 1, clusters_num+10)))
+        # if round_num == 0:
+        #     color = iter(cm.rainbow(np.linspace(0, 1, clusters_num+10)))
 
         cluster_heads = list()
 
@@ -54,8 +54,8 @@ class Leach(RoutingAlgorithm):
             if random_num < threshold and node.reelect_round_num <= round_num:
                 node.next_hop = cfg.BS_ID
 
-                if round_num == 0:
-                    node.color = next(color)
+                # if round_num == 0:
+                #     node.color = next(color)
 
                 node.is_head = True
                 node.reelect_round_num = round_num + reelect_round_num

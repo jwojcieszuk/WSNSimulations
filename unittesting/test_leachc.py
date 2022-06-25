@@ -105,6 +105,5 @@ class TestLeachC(unittest.TestCase):
             sum_energy_random_approach += self.network.total_energy_dissipation()
 
         difference = sum_energy_random_approach-sum_energy_simulated_annealing_approach
-        print(f'Random sum{sum_energy_random_approach}, difference: {difference}')
         self.assertTrue(sum_energy_random_approach > sum_energy_simulated_annealing_approach)
 

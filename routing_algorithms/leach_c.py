@@ -29,9 +29,9 @@ class LeachC(RoutingAlgorithm):
         if cluster_heads == 0:
             self._set_next_hop_as_bs(alive_nodes)
             return
+
         # form clusters in original network
         original_heads = self._form_clusters_original(network, cluster_heads)
-        # cluster_heads = self._elect_cluster_heads(alive_nodes, avg_energy, clusters_num)
 
         return original_heads
 
@@ -55,7 +55,6 @@ class LeachC(RoutingAlgorithm):
     @staticmethod
     def _elect_cluster_heads(alive_nodes, avg_energy, clusters_num):
         cluster_heads = list()
-        i, j = 0, 0
 
         # nodes with energy level higher or equal than average
         eligible_nodes = [node for node in alive_nodes if node.energy_source.energy >= avg_energy]
@@ -132,7 +131,7 @@ class LeachC(RoutingAlgorithm):
 
         best_energy_usage = self.calculate_energy_usage(copied_network, best_heads)
 
-        temp = 1000
+        temp = 10
         cooling_rate = 0.03
         round_number = 0
 
@@ -165,30 +164,3 @@ class LeachC(RoutingAlgorithm):
         self.sensing_phase(network, True)
         self.transmission_phase(network, heads, True)
         return network.total_energy_dissipation()
-
-    # def _modify_cluster_heads(self, prev_heads, alive_nodes, avg_energy):
-    #     eligible_nodes = [node for node in alive_nodes if node.energy_source.energy >= avg_energy]
-    #
-    #     while True:
-    #         new_head = random.choice(eligible_nodes)
-    #         if new_head not in prev_heads:
-    #             # find the nearest cluster head and replace it with new one
-    #             nearest_head = prev_heads[0]
-    #             for head in prev_heads:
-    #                 if euclidean_distance(new_head, head) < euclidean_distance(new_head, nearest_head):
-    #                     nearest_head = head
-    #             # change all nodes that belong to the nearest head to point to the new one
-    #             for node in alive_nodes:
-    #                 if node.next_hop == nearest_head.node_id:
-    #                     node.next_hop = new_head.node_id
-    #             # nearest head is now normal sensor node
-    #             nearest_head.next_hop = new_head.node_id
-    #             nearest_head.is_head = False
-    #             prev_heads.remove(nearest_head)
-    #
-    #             new_head.next_hop = cfg.BS_ID
-    #             new_head.is_head = True
-    #             prev_heads.append(new_head)
-    #             break
-    #
-    #     return prev_heads

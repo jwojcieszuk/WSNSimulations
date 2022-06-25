@@ -9,13 +9,12 @@ from routing_algorithms.direct_communication import DirectCommunication
 from routing_algorithms.leach import Leach
 from routing_algorithms.leach_c import LeachC
 from metrics import RoutingAlgorithmMetrics
-import numpy as np
 import configuration as cfg
 
 
 class RoutingSimulator:
     """
-        This class simulates behaviour of an environment that is deployed in a random field.
+        This class simulates behaviour of a WSN that is deployed in a random field.
     """
 
     def __init__(self, num_of_nodes: int, initial_node_energy: float, simulation_logger: logging,
