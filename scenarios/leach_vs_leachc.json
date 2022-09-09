@@ -1,0 +1,16 @@
+ {
+ "leach_vs_leachC" : {
+   "num_of_nodes" : 100 ,
+   "x_axis_bounds" : [0 , 100] ,
+   "y_axis_bounds" : [0 , 100] ,
+   "base_station_location" : [50 , 50] ,
+   "algorithms" : [ "LeachC" , "Leach" ] ,
+   "metrics" : [ "alive_nodes_num" , "avg_energy_dissipation" ,
+   "first_dead_node" , "total_energy_dissipation" ,
+   "received_packets" ] ,
+   "initial_node_energy" : 0.2 ,
+   "bits_per_message" : 3000 ,
+   "desired_clusters_percentage" : 10 ,
+   "radio_propagation_model" : "free_space_and_multipath"
+  }
+ }
